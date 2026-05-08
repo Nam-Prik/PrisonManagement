@@ -1,0 +1,6 @@
+echo "Running lint and format check on staged files..."
+pnpm exec lint-staged || exit 1
+echo "Running TypeScript check on server..."
+(cd server && pnpm typecheck) || exit 1
+echo "Running TypeScript check on client..."
+(cd client && pnpm typecheck) || exit 1

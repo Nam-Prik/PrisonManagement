@@ -1,0 +1,26 @@
+{
+  "name": "zedyor-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "db:test": "tsx --env-file=.env src/db/test-connection.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/zod-validator": "^0.4.3",
+    "hono": "^4.7.11",
+    "pg": "^8.13.3",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
