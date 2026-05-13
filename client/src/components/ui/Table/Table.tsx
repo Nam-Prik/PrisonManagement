@@ -11,7 +11,7 @@ export interface Column<T> {
   className?: string
 }
 
-interface TableProps<T extends Record<string, unknown>> {
+interface TableProps<T extends object> {
   columns: Column<T>[]
   data: T[]
   rowKey: keyof T
@@ -32,7 +32,7 @@ function SortIcon() {
   )
 }
 
-export default function Table<T extends Record<string, unknown>>({
+export default function Table<T extends object>({
   columns,
   data,
   rowKey,
@@ -98,12 +98,12 @@ export default function Table<T extends Record<string, unknown>>({
             </tr>
           ) : (
             data.map((row, index) => (
-              <tr key={String(row[rowKey])} className="table__tr">
+              <tr key={String((row as Record<keyof T, unknown>)[rowKey])} className="table__tr">
                 {columns.map((col) => (
                   <td key={col.key} className={`table__td ${col.className ?? ''}`.trim()}>
                     {col.render
-                      ? col.render(row[col.key], row, index)
-                      : (row[col.key] as React.ReactNode)}
+                      ? col.render((row as Record<string, unknown>)[col.key], row, index)
+                      : ((row as Record<string, unknown>)[col.key] as React.ReactNode)}
                   </td>
                 ))}
               </tr>

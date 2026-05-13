@@ -4,7 +4,7 @@ import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
 import type { LaborByCost as LaborByCostRow } from '../../../types/dto/labor-report.dto'
 
-type Row = LaborByCostRow & { _idx: number } & Record<string, unknown>
+type Row = LaborByCostRow & { _idx: number }
 
 const COLUMNS: Column<Row>[] = [
   { key: 'firstName', label: 'First Name' },
@@ -14,11 +14,7 @@ const COLUMNS: Column<Row>[] = [
     key: 'maintainanceCost',
     label: 'Maintenance Cost',
     width: '160px',
-    render: (val) => (
-      <span style={{ fontWeight: 'var(--font-weight-semibold)' as string }}>
-        ฿{Number(val).toLocaleString()}
-      </span>
-    ),
+    render: (val) => <strong>฿{Number(val).toLocaleString()}</strong>,
   },
 ]
 
@@ -43,7 +39,7 @@ export default function LaborByCost() {
     setSearched(true)
     try {
       const data = await getLaborByCost(parsed)
-      setRows(data.map((item, i) => ({ ...item, _idx: i }) as Row))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -56,17 +52,13 @@ export default function LaborByCost() {
       <div className="page-header">
         <h1 className="page-header__title">Labor by Cost</h1>
         <p className="page-header__subtitle">
-          List maintenance assignments and the assigned maintainer where maintenance cost exceeds a
-          specified amount.
+          List maintenance assignments where cost exceeds a specified amount.
         </p>
       </div>
 
       <Card title="Filter">
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-4)' }}
-        >
-          <div style={{ flex: 1, maxWidth: 320 }}>
+        <form onSubmit={handleSubmit} className="report-filter">
+          <div className="report-filter__input">
             <FormGroup
               label="Minimum Maintenance Cost (฿)"
               htmlFor="minCost"
@@ -91,20 +83,10 @@ export default function LaborByCost() {
         </form>
       </Card>
 
-      {error && (
-        <p
-          style={{
-            color: 'var(--color-danger)',
-            margin: 'var(--space-4) 0',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p className="page-error">{error}</p>}
 
       {searched && (
-        <div style={{ marginTop: 'var(--space-6)' }}>
+        <div className="report-results">
           <Card
             title={rows.length > 0 ? `Results — ${rows.length} record(s)` : 'Results'}
             padding="flush"

@@ -6,7 +6,7 @@ import type { CostByLocation as CostByLocationRow } from '../../../types/dto/lab
 import type { MaintStatus } from '../../../types/dto/maintainance.dto'
 import { MAINT_STATUSES } from '../../../types/dto/maintainance.dto'
 
-type Row = CostByLocationRow & { _idx: number } & Record<string, unknown>
+type Row = CostByLocationRow & { _idx: number }
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -25,24 +25,13 @@ const COLUMNS: Column<Row>[] = [
     key: 'totalTasks',
     label: 'Total Tasks',
     width: '120px',
-    render: (val) => (
-      <span style={{ fontWeight: 'var(--font-weight-medium)' as string }}>{String(val)}</span>
-    ),
+    render: (val) => <strong>{String(val)}</strong>,
   },
   {
     key: 'totalCost',
     label: 'Total Cost',
     width: '160px',
-    render: (val) => (
-      <span
-        style={{
-          fontWeight: 'var(--font-weight-semibold)' as string,
-          color: 'var(--color-primary)',
-        }}
-      >
-        ฿{Number(val).toLocaleString()}
-      </span>
-    ),
+    render: (val) => <strong className="cell-primary">฿{Number(val).toLocaleString()}</strong>,
   },
 ]
 
@@ -60,7 +49,7 @@ export default function CostByLocation() {
     setSearched(true)
     try {
       const data = await getCostByLocation(status)
-      setRows(data.map((item, i) => ({ ...item, _idx: i }) as Row))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -76,16 +65,13 @@ export default function CostByLocation() {
       <div className="page-header">
         <h1 className="page-header__title">Cost by Location</h1>
         <p className="page-header__subtitle">
-          Total maintenance spend and task count per prison location, grouped by status.
+          Total maintenance spend and task count per prison location.
         </p>
       </div>
 
       <Card title="Filter">
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-4)' }}
-        >
-          <div style={{ flex: 1, maxWidth: 320 }}>
+        <form onSubmit={handleSubmit} className="report-filter">
+          <div className="report-filter__input">
             <FormGroup label="Task Status" htmlFor="status" required>
               <Select
                 id="status"
@@ -101,63 +87,35 @@ export default function CostByLocation() {
         </form>
       </Card>
 
-      {error && (
-        <p
-          style={{
-            color: 'var(--color-danger)',
-            margin: 'var(--space-4) 0',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p className="page-error">{error}</p>}
 
       {searched && !loading && rows.length > 0 && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 'var(--space-4)',
-            margin: 'var(--space-6) 0',
-          }}
-        >
-          {[
-            { label: 'Total Spend', value: `฿${totalSpend.toLocaleString()}`, highlight: true },
-            { label: 'Total Tasks', value: String(totalTasks), highlight: false },
-            { label: 'Locations', value: String(rows.length), highlight: false },
-          ].map(({ label, value, highlight }) => (
-            <Card key={label}>
-              <div style={{ textAlign: 'center' }}>
-                <p
-                  style={{
-                    fontSize: 'var(--font-size-xs)',
-                    color: 'var(--color-text-secondary)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    fontWeight: 'var(--font-weight-semibold)' as string,
-                    marginBottom: 'var(--space-1)',
-                  }}
-                >
-                  {label}
-                </p>
-                <p
-                  style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: 'var(--font-weight-bold)' as string,
-                    color: highlight ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                  }}
-                >
-                  {value}
-                </p>
-              </div>
-            </Card>
-          ))}
+        <div className="stat-grid">
+          <Card>
+            <div className="stat-card">
+              <p className="stat-card__label">Total Spend</p>
+              <p className="stat-card__value stat-card__value--highlight">
+                ฿{totalSpend.toLocaleString()}
+              </p>
+            </div>
+          </Card>
+          <Card>
+            <div className="stat-card">
+              <p className="stat-card__label">Total Tasks</p>
+              <p className="stat-card__value">{totalTasks}</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="stat-card">
+              <p className="stat-card__label">Locations</p>
+              <p className="stat-card__value">{rows.length}</p>
+            </div>
+          </Card>
         </div>
       )}
 
       {searched && (
-        <div style={{ marginTop: 'var(--space-6)' }}>
+        <div className="report-results">
           <Card
             title={rows.length > 0 ? `Results — ${rows.length} location(s)` : 'Results'}
             padding="flush"

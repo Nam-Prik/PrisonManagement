@@ -5,7 +5,7 @@ import { Button, Card, FormGroup, Select, Table } from '../../../components/ui'
 import type { MaintainerBySkill, MaintenanceSkill } from '../../../types/dto/labor-report.dto'
 import { MAINTENANCE_SKILLS } from '../../../types/dto/labor-report.dto'
 
-type Row = MaintainerBySkill & { _idx: number } & Record<string, unknown>
+type Row = MaintainerBySkill & { _idx: number }
 
 const COLUMNS: Column<Row>[] = [
   { key: 'firstName', label: 'First Name' },
@@ -29,7 +29,7 @@ export default function MaintainersBySkill() {
     setSearched(true)
     try {
       const data = await getMaintainersBySkill(skill)
-      setRows(data.map((item, i) => ({ ...item, _idx: i }) as Row))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -42,16 +42,13 @@ export default function MaintainersBySkill() {
       <div className="page-header">
         <h1 className="page-header__title">Maintainers by Skill</h1>
         <p className="page-header__subtitle">
-          List all maintainers' personal information filtered by a specific maintenance skill.
+          List all maintainers filtered by a specific maintenance skill.
         </p>
       </div>
 
       <Card title="Filter">
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-4)' }}
-        >
-          <div style={{ flex: 1, maxWidth: 320 }}>
+        <form onSubmit={handleSubmit} className="report-filter">
+          <div className="report-filter__input">
             <FormGroup label="Maintenance Skill" htmlFor="skill" required>
               <Select
                 id="skill"
@@ -67,20 +64,10 @@ export default function MaintainersBySkill() {
         </form>
       </Card>
 
-      {error && (
-        <p
-          style={{
-            color: 'var(--color-danger)',
-            margin: 'var(--space-4) 0',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p className="page-error">{error}</p>}
 
       {searched && (
-        <div style={{ marginTop: 'var(--space-6)' }}>
+        <div className="report-results">
           <Card
             title={rows.length > 0 ? `Results — ${rows.length} maintainer(s)` : 'Results'}
             padding="flush"

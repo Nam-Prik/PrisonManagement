@@ -22,6 +22,7 @@ import {
 import { useToast } from '../../context/ToastContext'
 import type { MaintStatus } from '../../types/dto/maintainance.dto'
 import { MAINT_STATUSES } from '../../types/dto/maintainance.dto'
+import type { MaintainerOption } from '../../types/dto/maintainer.dto'
 import type { PrisonLocation } from '../../types/dto/prison-location.dto'
 import type { LaborItemDraft } from './LineItems'
 import LineItems from './LineItems'
@@ -45,9 +46,7 @@ export default function MaintenanceForm() {
   const isEdit = id !== undefined
 
   const [locations, setLocations] = useState<PrisonLocation[]>([])
-  const [allMaintainers, setAllMaintainers] = useState<
-    Parameters<typeof LineItems>[0]['allMaintainers']
-  >([])
+  const [allMaintainers, setAllMaintainers] = useState<MaintainerOption[]>([])
 
   const [prisonLocationId, setPrisonLocationId] = useState<number>(0)
   const [maintainanceDate, setMaintainanceDate] = useState('')
@@ -195,7 +194,7 @@ export default function MaintenanceForm() {
       {error && <div className="form-error-banner">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 'var(--space-5)' }}>
+        <div className="form-page__section">
           <Card title="Maintenance Details">
             <div className="form-page__grid">
               <div className="field-id">

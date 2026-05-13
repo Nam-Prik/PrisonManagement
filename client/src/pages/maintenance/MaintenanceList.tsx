@@ -1,5 +1,5 @@
 import { MagnifyingGlassIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deleteMaintainance, getMaintainanceTasks } from '../../api/maintainance.api'
 import type { Column, SortDirection } from '../../components/ui'
@@ -7,9 +7,13 @@ import { Badge, Button, Card, Input, Modal, PageLoader, Select, Table } from '..
 import { useToast } from '../../context/ToastContext'
 import type { MaintainanceListItem, MaintStatus } from '../../types/dto/maintainance.dto'
 import { MAINT_STATUSES } from '../../types/dto/maintainance.dto'
+import './MaintenanceList.css'
 
-type Row = MaintainanceListItem & Record<string, unknown>
+/* ── Types ───────────────────────────────────────────── */
+
 type SortKey = 'maintainanceDate' | 'maintainanceCost' | 'laborCount' | 'status'
+
+/* ── Helpers (module-level, no closures over state) ──── */
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -33,9 +37,14 @@ function statusVariant(status: MaintStatus) {
   }
 }
 
-function compare(a: Row, b: Row, key: SortKey, dir: 'asc' | 'desc'): number {
-  let av = a[key]
-  let bv = b[key]
+function compare(
+  a: MaintainanceListItem,
+  b: MaintainanceListItem,
+  key: SortKey,
+  dir: 'asc' | 'desc'
+): number {
+  let av: unknown = a[key]
+  let bv: unknown = b[key]
   if (key === 'maintainanceDate') {
     av = new Date(av as string).getTime()
     bv = new Date(bv as string).getTime()
@@ -45,11 +54,13 @@ function compare(a: Row, b: Row, key: SortKey, dir: 'asc' | 'desc'): number {
   return dir === 'asc' ? result : -result
 }
 
+/* ── Component ───────────────────────────────────────── */
+
 export default function MaintenanceList() {
   const navigate = useNavigate()
   const toast = useToast()
 
-  const [rows, setRows] = useState<Row[]>([])
+  const [rows, setRows] = useState<MaintainanceListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -58,54 +69,51 @@ export default function MaintenanceList() {
   const [sortKey, setSortKey] = useState<SortKey | ''>('')
   const [sortDir, setSortDir] = useState<SortDirection>(null)
 
-  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<MaintainanceListItem | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  const fetchList = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await getMaintainanceTasks()
-      setRows(data as Row[])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load maintenance records')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  /* ── Initial data load ── */
 
   useEffect(() => {
-    void fetchList()
-  }, [fetchList])
+    setLoading(true)
+    setError(null)
+    getMaintainanceTasks()
+      .then((data) => setRows(data))
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : 'Failed to load maintenance records')
+      )
+      .finally(() => setLoading(false))
+  }, [])
+
+  /* ── Sort handler ── */
 
   const handleSort = (key: string) => {
     const k = key as SortKey
-    setSortKey((prev) => {
-      if (prev === k) {
-        setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
-        return prev
-      }
+    if (sortKey === k) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
+    } else {
+      setSortKey(k)
       setSortDir('asc')
-      return k
-    })
+    }
   }
 
-  const displayed = useMemo(() => {
-    let result = rows
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        (r) => r.locationName.toLowerCase().includes(q) || r.locationCode.toLowerCase().includes(q)
-      )
-    }
-    if (filterStatus) {
-      result = result.filter((r) => r.status === filterStatus)
-    }
-    if (sortKey && sortDir) {
-      result = [...result].sort((a, b) => compare(a, b, sortKey, sortDir))
-    }
-    return result
-  }, [rows, search, filterStatus, sortKey, sortDir])
+  /* ── Derived display list (computed inline, no useMemo) ── */
+
+  let displayed = rows
+  if (search.trim()) {
+    const q = search.toLowerCase()
+    displayed = displayed.filter(
+      (r) => r.locationName.toLowerCase().includes(q) || r.locationCode.toLowerCase().includes(q)
+    )
+  }
+  if (filterStatus) {
+    displayed = displayed.filter((r) => r.status === filterStatus)
+  }
+  if (sortKey && sortDir) {
+    displayed = [...displayed].sort((a, b) => compare(a, b, sortKey, sortDir))
+  }
+
+  /* ── Delete ── */
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
@@ -114,7 +122,14 @@ export default function MaintenanceList() {
       await deleteMaintainance(deleteTarget.id)
       toast.success('Maintenance record deleted.')
       setDeleteTarget(null)
-      void fetchList()
+      setLoading(true)
+      setError(null)
+      getMaintainanceTasks()
+        .then((data) => setRows(data))
+        .catch((err) =>
+          setError(err instanceof Error ? err.message : 'Failed to reload maintenance records')
+        )
+        .finally(() => setLoading(false))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Delete failed')
       setDeleteTarget(null)
@@ -123,19 +138,19 @@ export default function MaintenanceList() {
     }
   }
 
-  const COLUMNS: Column<Row>[] = [
+  /* ── Column definitions ── */
+
+  const COLUMNS: Column<MaintainanceListItem>[] = [
     { key: 'id', label: '#', width: '56px' },
     {
       key: 'locationCode',
       label: 'Location',
       render: (_, row) => (
-        <span style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+        <span className="cell-location">
           <span>
-            <Badge variant="neutral">{String(row.locationCode)}</Badge>
+            <Badge variant="neutral">{row.locationCode}</Badge>
           </span>
-          <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
-            {String(row.locationName)}
-          </span>
+          <span className="cell-location__name">{row.locationName}</span>
         </span>
       ),
     },
@@ -145,7 +160,7 @@ export default function MaintenanceList() {
       width: '120px',
       sortable: true,
       render: (val) => (
-        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+        <span className="cell-muted">
           {new Date(val as string).toLocaleDateString('en-GB', {
             day: '2-digit',
             month: 'short',
@@ -159,25 +174,14 @@ export default function MaintenanceList() {
       label: 'Cost',
       width: '120px',
       sortable: true,
-      render: (val) => (
-        <span
-          style={{
-            fontWeight: 'var(--font-weight-semibold)' as string,
-            color: 'var(--color-primary)',
-          }}
-        >
-          ฿{Number(val).toLocaleString()}
-        </span>
-      ),
+      render: (val) => <span className="cell-cost">฿{Number(val).toLocaleString()}</span>,
     },
     {
       key: 'laborCount',
       label: 'Workers',
       width: '90px',
       sortable: true,
-      render: (val) => (
-        <span style={{ fontWeight: 'var(--font-weight-medium)' as string }}>{String(val)}</span>
-      ),
+      render: (val) => <span className="cell-bold">{String(val)}</span>,
     },
     {
       key: 'status',
@@ -196,7 +200,7 @@ export default function MaintenanceList() {
       width: '100px',
       className: 'table__td--actions',
       render: (_, row) => (
-        <span style={{ display: 'flex', gap: 'var(--space-1)', justifyContent: 'flex-end' }}>
+        <span className="cell-actions">
           <Button
             variant="ghost"
             size="sm"
@@ -212,7 +216,7 @@ export default function MaintenanceList() {
             iconOnly
             onClick={() => setDeleteTarget(row)}
             title="Delete"
-            style={{ color: 'var(--color-danger)' } as React.CSSProperties}
+            className="btn-danger-ghost"
           >
             <TrashIcon width={15} height={15} />
           </Button>
@@ -221,7 +225,8 @@ export default function MaintenanceList() {
     },
   ]
 
-  // Show full-page loader on first visit before any rows arrive
+  /* ── Render ── */
+
   if (loading && rows.length === 0) return <PageLoader />
 
   return (
@@ -231,52 +236,20 @@ export default function MaintenanceList() {
         <p className="page-header__subtitle">Manage maintenance records and labor assignments.</p>
       </div>
 
-      {error && (
-        <p
-          style={{
-            color: 'var(--color-danger)',
-            marginBottom: 'var(--space-4)',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p className="page-error">{error}</p>}
 
       <Card padding="flush">
-        {/* ── Toolbar ── */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 'var(--space-3)',
-            alignItems: 'center',
-            padding: 'var(--space-4)',
-            borderBottom: '1px solid var(--color-border)',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: 320 }}>
-            <MagnifyingGlassIcon
-              width={15}
-              height={15}
-              style={{
-                position: 'absolute',
-                left: 'var(--space-3)',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--color-text-muted)',
-                pointerEvents: 'none',
-              }}
-            />
+        <div className="page-toolbar">
+          <div className="page-toolbar__search">
             <Input
+              prefix={<MagnifyingGlassIcon width={15} height={15} />}
               placeholder="Search by location…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingLeft: 'var(--space-8)' } as React.CSSProperties}
             />
           </div>
 
-          <div style={{ flex: '0 0 180px' }}>
+          <div className="page-toolbar__filter">
             <Select
               options={STATUS_OPTIONS}
               value={filterStatus}
@@ -284,22 +257,14 @@ export default function MaintenanceList() {
             />
           </div>
 
-          <div style={{ marginLeft: 'auto' }}>
+          <div className="page-toolbar__actions">
             <Button onClick={() => navigate('/maintenance/new')} size="sm">
               + New Maintenance
             </Button>
           </div>
         </div>
 
-        {/* ── Count line ── */}
-        <div
-          style={{
-            padding: 'var(--space-2) var(--space-4)',
-            fontSize: 'var(--font-size-xs)',
-            color: 'var(--color-text-muted)',
-            borderBottom: '1px solid var(--color-border)',
-          }}
-        >
+        <div className="page-count">
           {loading ? 'Loading…' : `${displayed.length} of ${rows.length} record(s)`}
         </div>
 
@@ -315,7 +280,6 @@ export default function MaintenanceList() {
         />
       </Card>
 
-      {/* Delete confirmation */}
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -332,22 +296,12 @@ export default function MaintenanceList() {
           </>
         }
       >
-        <p
-          style={{
-            fontSize: 'var(--font-size-sm)',
-            color: 'var(--color-text-secondary)',
-          }}
-        >
+        <p className="delete-confirm-text">
           Delete maintenance record{' '}
-          <strong style={{ color: 'var(--color-text-primary)' }}>#{deleteTarget?.id}</strong> at{' '}
-          <strong style={{ color: 'var(--color-text-primary)' }}>
-            {deleteTarget?.locationName}
-          </strong>{' '}
-          on{' '}
-          <strong style={{ color: 'var(--color-text-primary)' }}>
-            {deleteTarget
-              ? new Date(deleteTarget.maintainanceDate as string).toLocaleDateString()
-              : ''}
+          <strong className="delete-confirm-text__emphasis">#{deleteTarget?.id}</strong> at{' '}
+          <strong className="delete-confirm-text__emphasis">{deleteTarget?.locationName}</strong> on{' '}
+          <strong className="delete-confirm-text__emphasis">
+            {deleteTarget ? new Date(deleteTarget.maintainanceDate).toLocaleDateString() : ''}
           </strong>
           ? This removes all labor assignments for this record.
         </p>

@@ -1,3 +1,7 @@
+.form-page__section {
+  margin-bottom: var(--space-5);
+}
+
 .form-page-back {
   display: inline-flex;
   align-items: center;
