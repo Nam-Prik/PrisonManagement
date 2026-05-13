@@ -179,4 +179,4 @@ Allowed types: `feat` `fix` `docs` `style` `refactor` `test` `chore` `perf` `ci`
 
 The pre-commit hook also runs:
 1. **Biome** — lint and format check on staged files
-2. **TypeScript** — type check on both server and client
+2. **TypeScript** — type check on both server and client.
