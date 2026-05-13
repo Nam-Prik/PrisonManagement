@@ -7,7 +7,7 @@ interface HttpResponse<T> {
   status: number
 }
 
-type Body = Record<string, unknown> | unknown[]
+type Body = object | unknown[]
 
 class HttpClient {
   constructor(private readonly baseURL: string) {}
