@@ -122,17 +122,6 @@ const NAV: NavSection[] = [
           { label: 'Cost by Location', path: '/reports/maintenance/cost-by-location' },
         ],
       },
-      {
-        label: 'Visitation',
-        links: [
-          {
-            label: 'Visitor-Prisoner Relationship',
-            path: '/reports/visitation/visitor-prisoner-relationship',
-          },
-          { label: 'Visitation Logs', path: '/reports/visitation/visitation-logs' },
-          { label: 'Visitation Analysis', path: '/reports/visitation/visitation-analysis' },
-        ],
-      },
     ],
   },
 ]
