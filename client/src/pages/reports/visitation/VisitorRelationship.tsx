@@ -70,7 +70,7 @@ export default function VisitorRelationship() {
     setError(null)
     setSearched(true)
     try {
-      const { data } = await getVisitorRelationship(filters)
+      const data = await getVisitorRelationship(filters)
       setRows(data.map((item: any, i: number) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
