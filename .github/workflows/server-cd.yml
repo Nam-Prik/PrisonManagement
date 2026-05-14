@@ -49,13 +49,29 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Restart Hugging Face Space
+      - name: Set up Python
+        if: github.event_name == 'push'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Hugging Face Hub
+        if: github.event_name == 'push'
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Factory reboot Hugging Face Space
         if: github.event_name == 'push'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE_ID: ${{ secrets.HF_SPACE_ID }}
         run: |
-          curl --fail-with-body \
-            --request POST \
-            --header "Authorization: Bearer ${HF_TOKEN}" \
-            "https://huggingface.co/api/spaces/${HF_SPACE_ID}/restart"
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          api.restart_space(
+              repo_id=os.environ["HF_SPACE_ID"],
+              factory_reboot=True,
+          )
+          PY
