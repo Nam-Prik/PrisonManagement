@@ -6,30 +6,28 @@ import type {
 import type { ApiResponse } from '../types/response'
 import http from './http'
 
-export async function getVisitorRelationship(
+export const getVisitorRelationship = async (
   params: any
-): Promise<ApiResponse<VisitorPrisonerRelationshipRow[]>> {
-  const query = new URLSearchParams(params).toString()
-  const res = await http.get<ApiResponse<VisitorPrisonerRelationshipRow[]>>(
-    `/visitation-reports/visitor-relationship?${query}`
+): Promise<VisitorPrisonerRelationshipRow[]> => {
+  const { data } = await http.get<ApiResponse<VisitorPrisonerRelationshipRow[]>>(
+    '/visitation-reports/visitor-relationship',
+    { params }
   )
-  return res.data
+  return data.data
 }
 
-export async function getVisitationLogs(params: any): Promise<ApiResponse<VisitationLogRow[]>> {
-  const query = new URLSearchParams(params).toString()
-  const res = await http.get<ApiResponse<VisitationLogRow[]>>(
-    `/visitation-reports/visitation-logs?${query}`
+export const getVisitationLogs = async (params: any): Promise<VisitationLogRow[]> => {
+  const { data } = await http.get<ApiResponse<VisitationLogRow[]>>(
+    '/visitation-reports/visitation-logs',
+    { params }
   )
-  return res.data
+  return data.data
 }
 
-export async function getVisitationAnalysis(
-  params: any
-): Promise<ApiResponse<VisitationAnalysisRow[]>> {
-  const query = new URLSearchParams(params).toString()
-  const res = await http.get<ApiResponse<VisitationAnalysisRow[]>>(
-    `/visitation-reports/visitation-analysis?${query}`
+export const getVisitationAnalysis = async (params: any): Promise<VisitationAnalysisRow[]> => {
+  const { data } = await http.get<ApiResponse<VisitationAnalysisRow[]>>(
+    '/visitation-reports/visitation-analysis',
+    { params }
   )
-  return res.data
+  return data.data
 }
