@@ -27,7 +27,6 @@ const COLUMNS: Column<VisitationLogRow & { _idx: number }>[] = [
 ]
 
 export default function VisitationLogs() {
-  const navigate = useNavigate()
   const [filters, setFilters] = useState({
     prisonerCode: '',
     visitorFirstName: '',
