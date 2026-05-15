@@ -1,0 +1,132 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.app-layout__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-layout__content {
+  flex: 1;
+  padding: var(--space-8);
+}
+
+/* ── Page header ────────────────────── */
+
+.page-header {
+  margin-bottom: var(--space-6);
+}
+
+.page-header__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.page-header__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Page error ─────────────────────── */
+
+.page-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Page toolbar (list pages) ──────── */
+
+.page-toolbar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.page-toolbar__search {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.page-toolbar__filter {
+  flex: 0 0 180px;
+}
+
+.page-toolbar__actions {
+  margin-left: auto;
+}
+
+.page-count {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Report pages ───────────────────── */
+
+.report-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.report-filter__input {
+  flex: 1;
+  max-width: 320px;
+}
+
+.report-results {
+  margin-top: var(--space-6);
+}
+
+/* ── Stat summary cards ─────────────── */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-card__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.stat-card__value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.stat-card__value--highlight {
+  color: var(--color-primary);
+}
+
+/* ── Shared cell utilities ──────────── */
+
+.cell-primary {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}

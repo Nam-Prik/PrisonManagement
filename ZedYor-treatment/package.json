@@ -1,0 +1,26 @@
+{
+  "name": "zedyor",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "prepare": "husky",
+    "dev:server": "pnpm --filter zedyor-server dev",
+    "dev:client": "pnpm --filter zedyor-client dev",
+    "typecheck": "pnpm --filter zedyor-server typecheck && pnpm --filter zedyor-client typecheck",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.14",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^17.0.2"
+  }
+}
