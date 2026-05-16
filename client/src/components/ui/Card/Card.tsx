@@ -1,16 +1,17 @@
+import type { ReactNode } from 'react'
 import './Card.css'
 
 type CardPadding = 'default' | 'compact' | 'flush'
 type CardVariant = 'default' | 'elevated' | 'borderless'
 
 interface CardProps {
-  title?: React.ReactNode
+  title?: ReactNode
   subtitle?: string
-  actions?: React.ReactNode
-  footer?: React.ReactNode
+  actions?: ReactNode
+  footer?: ReactNode
   padding?: CardPadding
   variant?: CardVariant
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }
 

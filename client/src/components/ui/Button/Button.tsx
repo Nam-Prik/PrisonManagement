@@ -1,9 +1,10 @@
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react'
 import './Button.css'
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize
   loading?: boolean
@@ -39,11 +40,7 @@ export default function Button({
 
   if (Tag === 'a') {
     return (
-      <a
-        className={classes}
-        href={href}
-        {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-      >
+      <a className={classes} href={href} {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {loading && <span className="btn__spinner" aria-hidden="true" />}
         {children}
       </a>

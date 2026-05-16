@@ -1,84 +1,8 @@
+import { BarChartIcon, ChevronRightIcon, GearIcon, LockClosedIcon } from '@radix-ui/react-icons'
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import './Sidebar.css'
-
-/* ─── Icons ─────────────────────────────────────────── */
-
-function ShieldIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  )
-}
-
-function WrenchIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-    </svg>
-  )
-}
-
-function ChartIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="18" y1="20" x2="18" y2="10" />
-      <line x1="12" y1="20" x2="12" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="14" />
-    </svg>
-  )
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  )
-}
-
-/* ─── Types ──────────────────────────────────────────── */
 
 interface SidebarNavLink {
   label: string
@@ -93,26 +17,22 @@ interface NavGroup {
 interface NavSection {
   key: string
   label: string
-  icon: React.ReactNode
-  /** Direct link — section header navigates to this path */
+  icon: ReactNode
   path?: string
-  /** Collapsible sub-groups with their links */
   groups?: NavGroup[]
 }
-
-/* ─── Nav config ─────────────────────────────────────── */
 
 const NAV: NavSection[] = [
   {
     key: 'maintenance',
     label: 'Maintenance',
-    icon: <WrenchIcon />,
+    icon: <GearIcon width={18} height={18} />,
     path: '/maintenance',
   },
   {
     key: 'reports',
     label: 'Reports',
-    icon: <ChartIcon />,
+    icon: <BarChartIcon width={18} height={18} />,
     groups: [
       {
         label: 'Maintenance',
@@ -125,8 +45,6 @@ const NAV: NavSection[] = [
     ],
   },
 ]
-
-/* ─── Component ──────────────────────────────────────── */
 
 export default function Sidebar() {
   const location = useLocation()
@@ -145,10 +63,9 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* Brand */}
       <div className="sidebar__brand">
         <div className="sidebar__brand-icon">
-          <ShieldIcon />
+          <LockClosedIcon width={20} height={20} />
         </div>
         <div className="sidebar__brand-text">
           <span className="sidebar__brand-name">ZedYor</span>
@@ -156,7 +73,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="sidebar__nav" aria-label="Main navigation">
         {NAV.map((section) => {
           const isActive = section.path
@@ -167,7 +83,6 @@ export default function Sidebar() {
 
           const isOpen = open[section.key] ?? false
 
-          /* Direct link section */
           if (section.path) {
             return (
               <NavLink
@@ -183,7 +98,6 @@ export default function Sidebar() {
             )
           }
 
-          /* Collapsible section */
           return (
             <div key={section.key} className="sidebar__section">
               <button
@@ -197,7 +111,7 @@ export default function Sidebar() {
                   <span className="sidebar__section-label">{section.label}</span>
                 </span>
                 <span className={`sidebar__chevron${isOpen ? ' sidebar__chevron--open' : ''}`}>
-                  <ChevronRightIcon />
+                  <ChevronRightIcon width={14} height={14} />
                 </span>
               </button>
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import './Badge.css'
 
 type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
@@ -7,7 +8,7 @@ interface BadgeProps {
   variant?: BadgeVariant
   size?: BadgeSize
   dot?: boolean
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }
 

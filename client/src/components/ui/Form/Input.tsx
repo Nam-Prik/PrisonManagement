@@ -1,12 +1,13 @@
+import type { InputHTMLAttributes, ReactNode } from 'react'
 import './Form.css'
 
 type InputSize = 'sm' | 'md' | 'lg'
 
-interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
+interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
   inputSize?: InputSize
   error?: boolean
-  prefix?: React.ReactNode
-  suffix?: React.ReactNode
+  prefix?: ReactNode
+  suffix?: ReactNode
 }
 
 export default function Input({

@@ -1,6 +1,7 @@
+import type { TextareaHTMLAttributes } from 'react'
 import './Form.css'
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: boolean
 }
 
