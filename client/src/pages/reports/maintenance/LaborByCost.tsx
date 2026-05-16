@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { getLaborByCost } from '../../../api/labor-report.api'
 import type { Column } from '../../../components/ui'
@@ -26,7 +27,7 @@ export default function LaborByCost() {
   const [searched, setSearched] = useState(false)
   const [inputError, setInputError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const parsed = Number(minCost)
     if (minCost === '' || Number.isNaN(parsed) || parsed < 0) {

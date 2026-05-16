@@ -1,4 +1,5 @@
 import { ListBulletIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import Button from '../Button/Button'
 import Input from '../Form/Input'
@@ -9,7 +10,7 @@ export interface LovColumn<T extends object> {
   key: keyof T & string
   label: string
   width?: string
-  render?: (value: unknown, row: T) => React.ReactNode
+  render?: (value: unknown, row: T) => ReactNode
 }
 
 interface Props<T extends object> {
@@ -80,7 +81,6 @@ export default function LovButton<T extends object>({
       </div>
 
       <Modal isOpen={open} onClose={close} title={modalTitle} size="lg">
-        {/* Search bar */}
         <div className="lov-search">
           <MagnifyingGlassIcon width={15} height={15} className="lov-search__icon" />
           <Input
@@ -92,7 +92,6 @@ export default function LovButton<T extends object>({
           />
         </div>
 
-        {/* Table */}
         <div className="lov-table-wrap">
           <table className="lov-table">
             <thead>

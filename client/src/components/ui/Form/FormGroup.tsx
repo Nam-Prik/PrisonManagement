@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import './Form.css'
 import Label from './Label'
 
@@ -7,7 +8,7 @@ interface FormGroupProps {
   required?: boolean
   error?: string
   hint?: string
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }
 

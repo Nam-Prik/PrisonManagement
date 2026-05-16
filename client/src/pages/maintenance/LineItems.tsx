@@ -4,8 +4,6 @@ import type { LovColumn } from '../../components/ui'
 import { Button, Input, LovButton } from '../../components/ui'
 import type { MaintainerOption } from '../../types/dto/maintainer.dto'
 
-/* ── Types ────────────────────────────────────────────────────── */
-
 export interface LaborItemDraft {
   maintainerId: number
   laborTask: string
@@ -28,16 +26,12 @@ const EMPTY: LaborItemDraft = {
   specialization: '',
 }
 
-/* ── LOV column config for the maintainer picker ─────────────── */
-
 const MAINTAINER_LOV_COLUMNS: LovColumn<MaintainerOption>[] = [
   { key: 'id', label: 'ID', width: '56px' },
   { key: 'firstName', label: 'First Name' },
   { key: 'lastName', label: 'Last Name' },
   { key: 'maintenanceSkill', label: 'Skill' },
 ]
-
-/* ── Props ────────────────────────────────────────────────────── */
 
 interface Props {
   items: LaborItemDraft[]
@@ -47,8 +41,6 @@ interface Props {
   onRemove: (index: number) => void
 }
 
-/* ── Component ────────────────────────────────────────────────── */
-
 export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRemove }: Props) {
   const [editingIdx, setEditingIdx] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState<LaborItemDraft>(EMPTY)
@@ -57,11 +49,9 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
 
   const busy = editingIdx !== null || isAdding
 
-  // Maintainers available for the add-row LOV (exclude all currently assigned)
   const usedIds = new Set(items.map((li) => li.maintainerId))
   const addAvailable = allMaintainers.filter((m) => !usedIds.has(m.id))
 
-  // Maintainers available for the edit-row LOV (exclude OTHER rows, keep current row's)
   const editAvailable =
     editingIdx !== null
       ? allMaintainers.filter((m) => {
@@ -72,28 +62,19 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
         })
       : []
 
-  /* ── Helpers ── */
-
-  const applyMaintainer = (
-    m: MaintainerOption,
-    setter: React.Dispatch<React.SetStateAction<LaborItemDraft>>
-  ) => {
-    setter((d) => ({
-      ...d,
-      maintainerId: m.id,
-      maintainerFirstName: m.firstName,
-      maintainerLastName: m.lastName,
-      maintenanceSkill: m.maintenanceSkill,
-      skillDescription: m.skillDescription,
-      companyName: m.companyName,
-      specialization: m.specialization,
-    }))
-  }
+  const withMaintainer = (draft: LaborItemDraft, maintainer: MaintainerOption): LaborItemDraft => ({
+    ...draft,
+    maintainerId: maintainer.id,
+    maintainerFirstName: maintainer.firstName,
+    maintainerLastName: maintainer.lastName,
+    maintenanceSkill: maintainer.maintenanceSkill,
+    skillDescription: maintainer.skillDescription,
+    companyName: maintainer.companyName,
+    specialization: maintainer.specialization,
+  })
 
   const maintainerLabel = (draft: LaborItemDraft) =>
     draft.maintainerId ? `${draft.maintainerFirstName} ${draft.maintainerLastName}` : ''
-
-  /* ── Edit flow ── */
 
   const startEdit = (idx: number) => {
     setEditingIdx(idx)
@@ -112,8 +93,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
     setEditDraft(EMPTY)
   }
 
-  /* ── Add flow ── */
-
   const startAdd = () => {
     setAddDraft(EMPTY)
     setIsAdding(true)
@@ -130,8 +109,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
     setAddDraft(EMPTY)
     setIsAdding(false)
   }
-
-  /* ── Render ── */
 
   const hasRows = items.length > 0 || isAdding
 
@@ -163,7 +140,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
 
             {items.map((item, idx) =>
               editingIdx === idx ? (
-                /* ── Editing row ── */
                 <tr
                   key={`edit-${item.maintainerId}`}
                   className="labor-table__row labor-table__row--editing"
@@ -178,11 +154,10 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
                       columns={MAINTAINER_LOV_COLUMNS}
                       data={editAvailable}
                       rowKey="id"
-                      onSelect={(m) => applyMaintainer(m, setEditDraft)}
+                      onSelect={(maintainer) => setEditDraft(withMaintainer(editDraft, maintainer))}
                     />
                   </td>
 
-                  {/* Maintainer fields auto-populate from LOV selection */}
                   <td className="labor-table__td labor-table__td--muted">
                     {editDraft.maintenanceSkill || '—'}
                   </td>
@@ -225,7 +200,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
                   </td>
                 </tr>
               ) : (
-                /* ── View row ── */
                 <tr key={item.maintainerId} className="labor-table__row">
                   <td className="labor-table__td labor-table__td--idx">{idx + 1}</td>
                   <td className="labor-table__td labor-table__td--name">
@@ -252,13 +226,12 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
                       <Pencil1Icon width={14} height={14} />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="danger"
                       size="sm"
                       iconOnly
                       title="Remove"
                       disabled={busy}
                       onClick={() => onRemove(idx)}
-                      style={{ color: 'var(--color-danger)' } as React.CSSProperties}
                     >
                       <TrashIcon width={14} height={14} />
                     </Button>
@@ -267,7 +240,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
               )
             )}
 
-            {/* ── Add row ── */}
             {isAdding && (
               <tr className="labor-table__row labor-table__row--adding">
                 <td className="labor-table__td labor-table__td--idx">
@@ -282,7 +254,7 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
                     columns={MAINTAINER_LOV_COLUMNS}
                     data={addAvailable}
                     rowKey="id"
-                    onSelect={(m) => applyMaintainer(m, setAddDraft)}
+                    onSelect={(maintainer) => setAddDraft(withMaintainer(addDraft, maintainer))}
                   />
                 </td>
 
@@ -326,7 +298,6 @@ export default function LineItems({ items, allMaintainers, onAdd, onUpdate, onRe
         </table>
       </div>
 
-      {/* Add item trigger */}
       {!isAdding && addAvailable.length > 0 && (
         <div className="labor-items__toolbar">
           <Button type="button" variant="secondary" size="sm" onClick={startAdd} disabled={busy}>
