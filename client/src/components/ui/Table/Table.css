@@ -1,0 +1,113 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family);
+}
+
+.table__head {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1.5px solid var(--color-border);
+}
+
+.table__th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.table__th--sortable {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.table__th--sortable:hover {
+  color: var(--color-text-primary);
+}
+
+.table__th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.table__sort-icon {
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.table__th--asc .table__sort-icon,
+.table__th--desc .table__sort-icon {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+.table__body .table__tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-fast);
+}
+
+.table__body .table__tr:last-child {
+  border-bottom: none;
+}
+
+.table__body .table__tr:hover {
+  background-color: var(--color-primary-bg);
+}
+
+.table__td {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.table__empty,
+.table__loading {
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.table__spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: table-spin 0.7s linear infinite;
+  margin: 0 auto var(--space-3);
+}
+
+@keyframes table-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.table__td--actions {
+  white-space: nowrap;
+  text-align: right;
+  width: 1%;
+}
+
+.table__th--check,
+.table__td--check {
+  width: 40px;
+  padding-right: 0;
+}
