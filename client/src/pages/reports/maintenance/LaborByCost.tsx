@@ -21,25 +21,48 @@ const COLUMNS: Column<Row>[] = [
 
 export default function LaborByCost() {
   const [minCost, setMinCost] = useState('')
+  const [maxCost, setMaxCost] = useState('')
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
-  const [inputError, setInputError] = useState<string | undefined>(undefined)
+  const [minError, setMinError] = useState<string | undefined>(undefined)
+  const [maxError, setMaxError] = useState<string | undefined>(undefined)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const parsed = Number(minCost)
-    if (minCost === '' || Number.isNaN(parsed) || parsed < 0) {
-      setInputError('Please enter a valid amount (0 or more)')
-      return
+    const parsedMin = Number(minCost)
+    const parsedMax = maxCost !== '' ? Number(maxCost) : undefined
+
+    let valid = true
+    if (minCost === '' || Number.isNaN(parsedMin) || parsedMin < 0) {
+      setMinError('Please enter a valid amount (0 or more)')
+      valid = false
+    } else {
+      setMinError(undefined)
     }
-    setInputError(undefined)
+
+    if (maxCost !== '') {
+      if (Number.isNaN(parsedMax) || (parsedMax as number) < 0) {
+        setMaxError('Please enter a valid amount (0 or more)')
+        valid = false
+      } else if ((parsedMax as number) < parsedMin) {
+        setMaxError('Maximum cost must be greater than or equal to minimum cost')
+        valid = false
+      } else {
+        setMaxError(undefined)
+      }
+    } else {
+      setMaxError(undefined)
+    }
+
+    if (!valid) return
+
     setLoading(true)
     setError(null)
     setSearched(true)
     try {
-      const data = await getLaborByCost(parsed)
+      const data = await getLaborByCost(parsedMin, parsedMax)
       setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -48,12 +71,20 @@ export default function LaborByCost() {
     }
   }
 
+  const emptyMessage = () => {
+    const min = `฿${Number(minCost).toLocaleString()}`
+    if (maxCost !== '') {
+      return `No labor records found with cost between ${min} and ฿${Number(maxCost).toLocaleString()}`
+    }
+    return `No labor records found with cost greater than ${min}`
+  }
+
   return (
     <>
       <div className="page-header">
         <h1 className="page-header__title">Labor by Cost</h1>
         <p className="page-header__subtitle">
-          List maintenance assignments where cost exceeds a specified amount.
+          List maintenance assignments where cost falls within the specified range.
         </p>
       </div>
 
@@ -64,7 +95,7 @@ export default function LaborByCost() {
               label="Minimum Maintenance Cost (฿)"
               htmlFor="minCost"
               required
-              error={inputError}
+              error={minError}
             >
               <Input
                 id="minCost"
@@ -74,7 +105,19 @@ export default function LaborByCost() {
                 placeholder="e.g. 500"
                 value={minCost}
                 onChange={(e) => setMinCost(e.target.value)}
-                error={!!inputError}
+                error={!!minError}
+              />
+            </FormGroup>
+            <FormGroup label="Maximum Maintenance Cost (฿)" htmlFor="maxCost" error={maxError}>
+              <Input
+                id="maxCost"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 5000 (optional)"
+                value={maxCost}
+                onChange={(e) => setMaxCost(e.target.value)}
+                error={!!maxError}
               />
             </FormGroup>
           </div>
@@ -97,7 +140,7 @@ export default function LaborByCost() {
               data={rows}
               rowKey="_idx"
               loading={loading}
-              emptyMessage={`No labor records found with cost greater than ฿${Number(minCost).toLocaleString()}`}
+              emptyMessage={emptyMessage()}
             />
           </Card>
         </div>

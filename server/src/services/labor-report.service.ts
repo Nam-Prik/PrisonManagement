@@ -16,8 +16,8 @@ export const laborReportService = {
     return rows.map(toMaintainerBySkill)
   },
 
-  async getLaborByCost(minCost: number): Promise<LaborByCost[]> {
-    const rows = await laborReportRepository.findLaborByCost(minCost)
+  async getLaborByCost(minCost: number, maxCost?: number): Promise<LaborByCost[]> {
+    const rows = await laborReportRepository.findLaborByCost(minCost, maxCost)
     return rows.map(toLaborByCost)
   },
 

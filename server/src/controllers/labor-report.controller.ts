@@ -57,9 +57,10 @@ export const laborReportController = {
   },
 
   async getLaborByCost(c: Context) {
-    const raw = c.req.query('minCost')
-    const minCost = Number(raw)
-    if (raw === undefined || raw === '' || Number.isNaN(minCost) || minCost < 0) {
+    const rawMin = c.req.query('minCost')
+    const rawMax = c.req.query('maxCost')
+    const minCost = Number(rawMin)
+    if (rawMin === undefined || rawMin === '' || Number.isNaN(minCost) || minCost < 0) {
       return c.json<ErrorResponse>(
         {
           error: 'Bad Request',
@@ -70,7 +71,32 @@ export const laborReportController = {
       )
     }
 
-    const data = await laborReportService.getLaborByCost(minCost)
+    let maxCost: number | undefined
+    if (rawMax !== undefined && rawMax !== '') {
+      maxCost = Number(rawMax)
+      if (Number.isNaN(maxCost) || maxCost < 0) {
+        return c.json<ErrorResponse>(
+          {
+            error: 'Bad Request',
+            message: 'Query param "maxCost" must be a non-negative number',
+            statusCode: 400,
+          },
+          400
+        )
+      }
+      if (maxCost < minCost) {
+        return c.json<ErrorResponse>(
+          {
+            error: 'Bad Request',
+            message: '"maxCost" must be greater than or equal to "minCost"',
+            statusCode: 400,
+          },
+          400
+        )
+      }
+    }
+
+    const data = await laborReportService.getLaborByCost(minCost, maxCost)
     return c.json<ApiResponse<LaborByCost[]>>({
       data,
       message: 'Labor records retrieved successfully',

@@ -19,8 +19,9 @@ export const laborReportRepository = {
     return result.rows
   },
 
-  // Report 2: labor tasks + cost + maintainer name where cost > threshold
-  async findLaborByCost(minCost: number): Promise<LaborByCostRow[]> {
+  // Report 2: labor tasks + cost + maintainer name where cost is within [minCost, maxCost]
+  async findLaborByCost(minCost: number, maxCost?: number): Promise<LaborByCostRow[]> {
+    const hasMax = maxCost !== undefined
     const result = await pool.query<LaborByCostRow>(
       `SELECT
          l.labor_task,
@@ -32,8 +33,9 @@ export const laborReportRepository = {
        JOIN maintainer m ON m.id = l.maintainer_id
        JOIN person p ON p.id = m.person_id
        WHERE ma.maintainance_cost > $1
+         ${hasMax ? 'AND ma.maintainance_cost <= $2' : ''}
        ORDER BY ma.maintainance_cost DESC`,
-      [minCost]
+      hasMax ? [minCost, maxCost] : [minCost]
     )
     return result.rows
   },
