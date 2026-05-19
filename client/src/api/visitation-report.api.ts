@@ -7,7 +7,7 @@ import type { ApiResponse } from '../types/response'
 import http from './http'
 
 export const getVisitorRelationship = async (
-  params: any
+  params: Record<string, string>
 ): Promise<VisitorPrisonerRelationshipRow[]> => {
   const { data } = await http.get<ApiResponse<VisitorPrisonerRelationshipRow[]>>(
     '/visitation-reports/visitor-relationship',
@@ -16,7 +16,9 @@ export const getVisitorRelationship = async (
   return data.data
 }
 
-export const getVisitationLogs = async (params: any): Promise<VisitationLogRow[]> => {
+export const getVisitationLogs = async (
+  params: Record<string, string>
+): Promise<VisitationLogRow[]> => {
   const { data } = await http.get<ApiResponse<VisitationLogRow[]>>(
     '/visitation-reports/visitation-logs',
     { params }
@@ -24,7 +26,9 @@ export const getVisitationLogs = async (params: any): Promise<VisitationLogRow[]
   return data.data
 }
 
-export const getVisitationAnalysis = async (params: any): Promise<VisitationAnalysisRow[]> => {
+export const getVisitationAnalysis = async (
+  params: Record<string, string>
+): Promise<VisitationAnalysisRow[]> => {
   const { data } = await http.get<ApiResponse<VisitationAnalysisRow[]>>(
     '/visitation-reports/visitation-analysis',
     { params }

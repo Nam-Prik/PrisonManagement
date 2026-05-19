@@ -28,7 +28,7 @@ export const visitationReportRepository = {
       JOIN Prisoner pr ON pr.id = v.prisoner_id
     `
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
 
     if (filters.visitorFirstName) {
       params.push(`%${filters.visitorFirstName}%`)
@@ -92,7 +92,7 @@ export const visitationReportRepository = {
       JOIN Person p ON p.id = vli.person_id
     `
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
 
     if (filters.prisonerCode) {
       params.push(`%${filters.prisonerCode}%`)
@@ -133,7 +133,7 @@ export const visitationReportRepository = {
   async findVisitationAnalysis(
     filters: VisitationAnalysisFilters
   ): Promise<VisitationAnalysisRow[]> {
-    const params: any[] = []
+    const params: unknown[] = []
 
     // Subqueries for stats
     let visitStatsFilter = "WHERE v.status = 'completed'"

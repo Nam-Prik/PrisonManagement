@@ -50,9 +50,7 @@ export interface NurseWorkloadPercentage {
 
 // ── Mappers ──────────────────────────────────────────────────
 
-export const toTreatmentExperience = (
-  row: TreatmentExperienceRow
-): TreatmentExperience => ({
+export const toTreatmentExperience = (row: TreatmentExperienceRow): TreatmentExperience => ({
   diagnoseDate: row.diagnose_date,
   prisonerFirstName: row.prisoner_first_name,
   prisonerLastName: row.prisoner_last_name,

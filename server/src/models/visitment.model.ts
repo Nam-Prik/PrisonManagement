@@ -76,7 +76,8 @@ export const toVisitmentListItem = (row: VisitmentRow) => ({
   prisonerId: row.prisoner_id,
   prisonerCode: row.prisoner_code || '',
   prisonerName: row.prisoner_name || '',
-  visitmentDate: typeof row.visitment_date === 'string' ? row.visitment_date : row.visitment_date.toISOString(),
+  visitmentDate:
+    typeof row.visitment_date === 'string' ? row.visitment_date : row.visitment_date.toISOString(),
   duration: row.duration,
   status: row.status,
   description: row.description,

@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { useState } from 'react'
 import { getTreatmentExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
@@ -110,7 +110,10 @@ export default function TreatmentExperience() {
 
       {searched && (
         <div className="report-results">
-          <Card title={rows.length > 0 ? `Results — ${rows.length} record(s)` : 'Results'} padding="flush">
+          <Card
+            title={rows.length > 0 ? `Results — ${rows.length} record(s)` : 'Results'}
+            padding="flush"
+          >
             <Table
               columns={COLUMNS}
               data={rows}

@@ -1,5 +1,5 @@
-import http from './http'
 import type { ApiResponse } from '../types/response'
+import http from './http'
 
 export interface VisitmentVisitor {
   personId: number
@@ -49,26 +49,50 @@ export const visitmentApi = {
   },
 
   lookupPrisoner: async (code: string) => {
-    const { data } = await http.get<ApiResponse<{ id: number; code: string; firstName: string; lastName: string }>>('/visitment/prisoner-lookup', {
-      params: { code }
+    const { data } = await http.get<
+      ApiResponse<{ id: number; code: string; firstName: string; lastName: string }>
+    >('/visitment/prisoner-lookup', {
+      params: { code },
     })
     return data.data
   },
 
   lookupPerson: async (id: number) => {
-    const { data } = await http.get<ApiResponse<{ id: number; firstName: string; lastName: string; gender: string; identificationNo: string }>>('/visitment/person-lookup', {
-      params: { id: String(id) }
+    const { data } = await http.get<
+      ApiResponse<{
+        id: number
+        firstName: string
+        lastName: string
+        gender: string
+        identificationNo: string
+      }>
+    >('/visitment/person-lookup', {
+      params: { id: String(id) },
     })
     return data.data
   },
 
   getAllPrisoners: async () => {
-    const { data } = await http.get<ApiResponse<{ id: number; code: string; firstName: string; lastName: string }[]>>('/visitment/prisoners')
+    const { data } =
+      await http.get<
+        ApiResponse<{ id: number; code: string; firstName: string; lastName: string }[]>
+      >('/visitment/prisoners')
     return data.data
   },
 
   getAllPersons: async () => {
-    const { data } = await http.get<ApiResponse<{ id: number; firstName: string; lastName: string; gender: string; identificationNo: string }[]>>('/visitment/persons')
+    const { data } =
+      await http.get<
+        ApiResponse<
+          {
+            id: number
+            firstName: string
+            lastName: string
+            gender: string
+            identificationNo: string
+          }[]
+        >
+      >('/visitment/persons')
     return data.data
-  }
+  },
 }

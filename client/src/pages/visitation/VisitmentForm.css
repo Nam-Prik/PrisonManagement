@@ -114,11 +114,12 @@
 }
 
 @media (max-width: 768px) {
-  .labor-table__th, .labor-table__td {
+  .labor-table__th,
+  .labor-table__td {
     padding: var(--space-2) var(--space-2);
     font-size: var(--font-size-xs);
   }
-  
+
   .labor-table {
     min-width: 600px; /* Reduce min-width on mobile to avoid excessive scrolling */
   }

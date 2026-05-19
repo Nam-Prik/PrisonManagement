@@ -48,6 +48,12 @@ const NAV: NavSection[] = [
     path: '/incident',
   },
   {
+    key: 'prisoner-intake',
+    label: 'Prisoner Intake',
+    icon: <PersonIcon width={18} height={18} />,
+    path: '/prisoner-intake',
+  },
+  {
     key: 'reports',
     label: 'Reports',
     icon: <BarChartIcon width={18} height={18} />,
@@ -77,6 +83,14 @@ const NAV: NavSection[] = [
           { label: 'Incidents by Officer', path: '/reports/incident/by-officer' },
           { label: 'Prisoners by Location', path: '/reports/incident/by-location' },
           { label: 'Top Prisoners by Location', path: '/reports/incident/top-by-location' },
+        ],
+      },
+      {
+        label: 'Prisoner Intake',
+        links: [
+          { label: 'Intake by Date Range', path: '/reports/prisoner-intake/by-date' },
+          { label: 'Confiscated Items', path: '/reports/prisoner-intake/confiscated-items' },
+          { label: 'Total Items Analysis', path: '/reports/prisoner-intake/total-items' },
         ],
       },
       {

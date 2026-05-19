@@ -57,7 +57,7 @@ export default function VisitationAnalysis() {
     setSearched(true)
     try {
       const data = await getVisitationAnalysis(filters)
-      setRows(data.map((item: any, i: number) => ({ ...item, _idx: i })))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {

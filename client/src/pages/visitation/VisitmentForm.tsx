@@ -1,16 +1,17 @@
 import { ArrowLeftIcon, PlusIcon } from '@radix-ui/react-icons'
-import React, { useEffect, useState, useRef } from 'react'
+import type React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { visitmentApi, type VisitmentData } from '../../api/visitment.api'
+import { type VisitmentData, visitmentApi } from '../../api/visitment.api'
 import {
   Button,
   Card,
   FormGroup,
   Input,
+  LovButton,
+  type LovColumn,
   PageLoader,
   Select,
-  LovButton,
-  type LovColumn
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import LineItems, { type LineItemsHandle, type VisitorDraft } from './LineItems'
@@ -18,7 +19,12 @@ import './VisitmentForm.css'
 
 /* ── LOV column config ───────────────────────────────────────── */
 
-const PRISONER_COLUMNS: LovColumn<any>[] = [
+const PRISONER_COLUMNS: LovColumn<{
+  id: number
+  code: string
+  firstName: string
+  lastName: string
+}>[] = [
   { key: 'code', label: 'Code', width: '100px' },
   { key: 'firstName', label: 'First Name' },
   { key: 'lastName', label: 'Last Name' },
@@ -39,8 +45,12 @@ export default function VisitmentForm() {
   const lineItemsRef = useRef<LineItemsHandle>(null)
   const isEdit = id !== undefined
 
-  const [allPrisoners, setAllPrisoners] = useState<any[]>([])
-  const [allPersons, setAllPersons] = useState<any[]>([])
+  const [allPrisoners, setAllPrisoners] = useState<
+    { id: number; code: string; firstName: string; lastName: string }[]
+  >([])
+  const [allPersons, setAllPersons] = useState<
+    { id: number; firstName: string; lastName: string; gender: string; identificationNo: string }[]
+  >([])
 
   const [prisonerId, setPrisonerId] = useState<number>(0)
   const [prisonerCode, setPrisonerCode] = useState('')
@@ -73,32 +83,34 @@ export default function VisitmentForm() {
           setVisitmentDate(new Date(data.visitmentDate).toISOString().slice(0, 10))
           setDuration(String(data.duration))
           setStatus(data.status)
-          setVisitors(data.visitors.map(v => ({
-            personId: v.personId,
-            relation: v.relation,
-            firstName: v.firstName,
-            lastName: v.lastName,
-            gender: v.gender,
-            identificationNo: v.identificationNo
-          })))
+          setVisitors(
+            data.visitors.map((v) => ({
+              personId: v.personId,
+              relation: v.relation,
+              firstName: v.firstName,
+              lastName: v.lastName,
+              gender: v.gender,
+              identificationNo: v.identificationNo,
+            }))
+          )
         }
       })
-      .catch(err => setError(err instanceof Error ? err.message : 'Failed to load data'))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load data'))
       .finally(() => setLoading(false))
   }, [id, isEdit])
 
   /* ── Handlers ── */
 
   const handleAddVisitor = (item: VisitorDraft) => {
-    setVisitors(prev => [...prev, item])
+    setVisitors((prev) => [...prev, item])
   }
 
   const handleUpdateVisitor = (index: number, item: VisitorDraft) => {
-    setVisitors(prev => prev.map((v, i) => (i === index ? item : v)))
+    setVisitors((prev) => prev.map((v, i) => (i === index ? item : v)))
   }
 
   const handleRemoveVisitor = (index: number) => {
-    setVisitors(prev => prev.filter((_, i) => i !== index))
+    setVisitors((prev) => prev.filter((_, i) => i !== index))
   }
 
   const prisonerDisplay = prisonerCode ? `[${prisonerCode}] ${prisonerName}` : ''
@@ -117,7 +129,7 @@ export default function VisitmentForm() {
       visitmentDate,
       duration: Number(duration),
       status,
-      visitors: visitors.map(v => ({ personId: v.personId, relation: v.relation }))
+      visitors: visitors.map((v) => ({ personId: v.personId, relation: v.relation })),
     }
 
     setSubmitting(true)
@@ -130,7 +142,7 @@ export default function VisitmentForm() {
         toast.success('Visitment record created successfully.')
       }
       navigate('/visitation')
-    } catch (err: any) {
+    } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed')
     } finally {
       setSubmitting(false)
@@ -148,8 +160,8 @@ export default function VisitmentForm() {
       <div className="page-header">
         <h1 className="page-header__title">Visitment Form</h1>
         <p className="page-header__subtitle">
-          {isEdit 
-            ? 'Update the visitation record and visitor details.' 
+          {isEdit
+            ? 'Update the visitation record and visitor details.'
             : 'Record a new prisoner visitation session.'}
         </p>
       </div>
@@ -180,7 +192,7 @@ export default function VisitmentForm() {
                 <Input
                   type="date"
                   value={visitmentDate}
-                  onChange={e => setVisitmentDate(e.target.value)}
+                  onChange={(e) => setVisitmentDate(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -206,7 +218,7 @@ export default function VisitmentForm() {
                   type="number"
                   min="1"
                   value={duration}
-                  onChange={e => setDuration(e.target.value)}
+                  onChange={(e) => setDuration(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -214,7 +226,9 @@ export default function VisitmentForm() {
               <FormGroup label="Status" required>
                 <Select
                   value={status}
-                  onChange={e => setStatus(e.target.value as any)}
+                  onChange={(e) =>
+                    setStatus(e.target.value as 'scheduled' | 'completed' | 'cancelled')
+                  }
                   options={STATUS_OPTIONS}
                 />
               </FormGroup>
@@ -222,8 +236,8 @@ export default function VisitmentForm() {
           </Card>
         </div>
 
-        <Card 
-          title={`Visitor Details${visitors.length ? ` (${visitors.length})` : ''}`} 
+        <Card
+          title={`Visitor Details${visitors.length ? ` (${visitors.length})` : ''}`}
           padding="flush"
           actions={
             <Button

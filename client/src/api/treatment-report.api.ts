@@ -1,9 +1,9 @@
-import type { ApiResponse } from '../types/response'
 import type {
   MedicinePrescriptionExperience,
   NurseWorkloadPercentage,
   TreatmentExperience,
 } from '../types/dto/treatment-report.dto'
+import type { ApiResponse } from '../types/response'
 import http from './http'
 
 export const getTreatmentExperience = async (

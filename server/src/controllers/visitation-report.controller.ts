@@ -15,7 +15,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitorRelationship(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<unknown>>({
       data,
       message: 'Visitor relationship report retrieved successfully',
     })
@@ -31,7 +31,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitationLogs(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<unknown>>({
       data,
       message: 'Visitation logs retrieved successfully',
     })
@@ -48,7 +48,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitationAnalysis(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<unknown>>({
       data,
       message: 'Visitation support analysis retrieved successfully',
     })
