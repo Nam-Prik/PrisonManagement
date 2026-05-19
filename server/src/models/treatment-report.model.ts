@@ -1,6 +1,9 @@
 // ── DB row types ─────────────────────────────────────────────
 
 export interface TreatmentExperienceRow {
+  id: number
+  prisoner_id: number
+  nurse_id: number
   diagnose_date: string
   prisoner_first_name: string
   prisoner_last_name: string
@@ -26,6 +29,9 @@ export interface NurseWorkloadPercentageRow {
 // ── Clean API types ───────────────────────────────────────────
 
 export interface TreatmentExperience {
+  id: number
+  prisonerId: number
+  nurseId: number
   diagnoseDate: string
   prisonerFirstName: string
   prisonerLastName: string
@@ -51,6 +57,9 @@ export interface NurseWorkloadPercentage {
 // ── Mappers ──────────────────────────────────────────────────
 
 export const toTreatmentExperience = (row: TreatmentExperienceRow): TreatmentExperience => ({
+  id: row.id,
+  prisonerId: row.prisoner_id,
+  nurseId: row.nurse_id,
   diagnoseDate: row.diagnose_date,
   prisonerFirstName: row.prisoner_first_name,
   prisonerLastName: row.prisoner_last_name,

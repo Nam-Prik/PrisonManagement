@@ -1,5 +1,5 @@
-import type { SubmitEvent } from 'react'
-import { useState } from 'react'
+import type { FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { getMedicinePrescriptionExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
@@ -23,9 +23,8 @@ export default function MedicinePrescription() {
   const [searched, setSearched] = useState(false)
   const [inputError, setInputError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (event: SubmitEvent) => {
-    event.preventDefault()
-    if (!caution.trim()) {
+  const loadPrescriptionReport = async (value: string) => {
+    if (!value.trim()) {
       setInputError('Please enter a caution filter value')
       return
     }
@@ -36,7 +35,7 @@ export default function MedicinePrescription() {
     setSearched(true)
 
     try {
-      const data = await getMedicinePrescriptionExperience(caution.trim())
+      const data = await getMedicinePrescriptionExperience(value.trim())
       setRows(data.map((item, index) => ({ ...item, _idx: index })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load prescription report')
@@ -44,6 +43,16 @@ export default function MedicinePrescription() {
       setLoading(false)
     }
   }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await loadPrescriptionReport(caution)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount with default value
+  useEffect(() => {
+    void loadPrescriptionReport(caution)
+  }, [])
 
   return (
     <>

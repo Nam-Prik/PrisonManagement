@@ -12,6 +12,9 @@ export const treatmentReportRepository = {
   ): Promise<TreatmentExperienceRow[]> {
     const result = await pool.query<TreatmentExperienceRow>(
       `SELECT
+         t.id,
+         t.prisoner_id,
+         t.nurse_id,
          t.diagnose_date,
          pe.first_name AS prisoner_first_name,
          pe.last_name AS prisoner_last_name,

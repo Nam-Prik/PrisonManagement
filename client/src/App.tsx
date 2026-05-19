@@ -22,6 +22,8 @@ import TreatmentExperience from './pages/reports/treatment/TreatmentExperience'
 import VisitationAnalysis from './pages/reports/visitation/VisitationAnalysis'
 import VisitationLogs from './pages/reports/visitation/VisitationLogs'
 import VisitorRelationship from './pages/reports/visitation/VisitorRelationship'
+import TreatmentForm from './pages/treatment/TreatmentForm'
+import TreatmentList from './pages/treatment/TreatmentList'
 import VisitmentForm from './pages/visitation/VisitmentForm'
 import VisitmentList from './pages/visitation/VisitmentList'
 
@@ -60,6 +62,9 @@ export default function App() {
         <Route path="/reports/treatment/experience" element={<TreatmentExperience />} />
         <Route path="/reports/treatment/medicine-prescription" element={<MedicinePrescription />} />
         <Route path="/reports/treatment/nurse-workload" element={<NurseWorkload />} />
+        <Route path="/treatment" element={<TreatmentList />} />
+        <Route path="/treatment/new" element={<TreatmentForm />} />
+        <Route path="/treatment/:id" element={<TreatmentForm />} />
       </Route>
     </Routes>
   )

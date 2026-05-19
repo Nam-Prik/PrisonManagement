@@ -1,5 +1,5 @@
-import type { SubmitEvent } from 'react'
-import { useState } from 'react'
+import type { FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { getTreatmentExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
@@ -24,23 +24,22 @@ const COLUMNS: Column<Row>[] = [
 ]
 
 export default function TreatmentExperience() {
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [startDate, setStartDate] = useState('2026-03-22')
+  const [endDate, setEndDate] = useState('2026-03-26')
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
   const [inputError, setInputError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (event: SubmitEvent) => {
-    event.preventDefault()
-    if (!startDate || !endDate) {
+  const loadTreatmentExperience = async (from: string, to: string) => {
+    if (!from || !to) {
       setInputError('Please select both start and end dates')
       return
     }
 
-    const start = new Date(startDate)
-    const end = new Date(endDate)
+    const start = new Date(from)
+    const end = new Date(to)
 
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
       setInputError('Please enter valid dates')
@@ -58,7 +57,7 @@ export default function TreatmentExperience() {
     setSearched(true)
 
     try {
-      const data = await getTreatmentExperience(startDate, endDate)
+      const data = await getTreatmentExperience(from, to)
       setRows(data.map((item, index) => ({ ...item, _idx: index })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load treatment experience report')
@@ -66,6 +65,16 @@ export default function TreatmentExperience() {
       setLoading(false)
     }
   }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    await loadTreatmentExperience(startDate, endDate)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount with default dates
+  useEffect(() => {
+    void loadTreatmentExperience(startDate, endDate)
+  }, [])
 
   return (
     <>

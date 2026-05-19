@@ -1,4 +1,7 @@
 export interface TreatmentExperience {
+  id: number
+  prisonerId: number
+  nurseId: number
   diagnoseDate: string
   prisonerFirstName: string
   prisonerLastName: string
