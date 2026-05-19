@@ -1,4 +1,10 @@
-import { BarChartIcon, ChevronRightIcon, GearIcon, LockClosedIcon } from '@radix-ui/react-icons'
+import {
+  BarChartIcon,
+  ChevronRightIcon,
+  GearIcon,
+  LockClosedIcon,
+  PersonIcon,
+} from '@radix-ui/react-icons'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
@@ -30,6 +36,12 @@ const NAV: NavSection[] = [
     path: '/maintenance',
   },
   {
+    key: 'visitation',
+    label: 'Visitment',
+    icon: <PersonIcon width={18} height={18} />,
+    path: '/visitation',
+  },
+  {
     key: 'incident',
     label: 'Incidents',
     icon: <LockClosedIcon width={18} height={18} />,
@@ -46,6 +58,17 @@ const NAV: NavSection[] = [
           { label: 'Maintainers by Skill', path: '/reports/maintenance/maintainers-by-skill' },
           { label: 'Labor by Cost', path: '/reports/maintenance/labor-by-cost' },
           { label: 'Cost by Location', path: '/reports/maintenance/cost-by-location' },
+        ],
+      },
+      {
+        label: 'Visitment',
+        links: [
+          {
+            label: 'Visitor-Prisoner Relationship',
+            path: '/reports/visitation/visitor-prisoner-relationship',
+          },
+          { label: 'Visitation Logs', path: '/reports/visitation/visitation-logs' },
+          { label: 'Visitation Analysis', path: '/reports/visitation/visitation-analysis' },
         ],
       },
       {
