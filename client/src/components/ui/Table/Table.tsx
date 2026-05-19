@@ -1,5 +1,5 @@
 import { CaretSortIcon } from '@radix-ui/react-icons'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import './Table.css'
 
 export type SortDirection = 'asc' | 'desc' | null
@@ -22,6 +22,7 @@ interface TableProps<T extends object> {
   sortKey?: string
   sortDirection?: SortDirection
   onSort?: (key: string) => void
+  rowStyle?: (row: T, index: number) => CSSProperties | undefined
   className?: string
 }
 
@@ -34,6 +35,7 @@ export default function Table<T extends object>({
   sortKey,
   sortDirection,
   onSort,
+  rowStyle,
   className = '',
 }: TableProps<T>) {
   const containerClasses = ['table-container', className].filter(Boolean).join(' ')
@@ -93,7 +95,11 @@ export default function Table<T extends object>({
             </tr>
           ) : (
             data.map((row, index) => (
-              <tr key={String((row as Record<keyof T, unknown>)[rowKey])} className="table__tr">
+              <tr
+                key={String((row as Record<keyof T, unknown>)[rowKey])}
+                className="table__tr"
+                style={rowStyle?.(row, index)}
+              >
                 {columns.map((col) => (
                   <td key={col.key} className={`table__td ${col.className ?? ''}`.trim()}>
                     {col.render

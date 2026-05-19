@@ -79,6 +79,14 @@ const NAV: NavSection[] = [
           { label: 'Top Prisoners by Location', path: '/reports/incident/top-by-location' },
         ],
       },
+      {
+        label: 'Treatment',
+        links: [
+          { label: 'Prisoner Treatment Experience', path: '/reports/treatment/experience' },
+          { label: 'Medicine Prescription', path: '/reports/treatment/medicine-prescription' },
+          { label: 'Nurse Workload', path: '/reports/treatment/nurse-workload' },
+        ],
+      },
     ],
   },
 ]
