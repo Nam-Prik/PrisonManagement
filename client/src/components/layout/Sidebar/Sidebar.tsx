@@ -48,6 +48,12 @@ const NAV: NavSection[] = [
     path: '/incident',
   },
   {
+    key: 'treatment',
+    label: 'Treatment',
+    icon: <PersonIcon width={18} height={18} />,
+    path: '/treatment',
+  },
+  {
     key: 'reports',
     label: 'Reports',
     icon: <BarChartIcon width={18} height={18} />,
