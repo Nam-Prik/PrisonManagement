@@ -1,9 +1,11 @@
 import {
   BarChartIcon,
+  CalendarIcon,
   ChevronRightIcon,
   GearIcon,
+  HeartIcon,
+  IdCardIcon,
   LockClosedIcon,
-  PersonIcon,
 } from '@radix-ui/react-icons'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
@@ -38,7 +40,7 @@ const NAV: NavSection[] = [
   {
     key: 'visitation',
     label: 'Visitment',
-    icon: <PersonIcon width={18} height={18} />,
+    icon: <CalendarIcon width={18} height={18} />,
     path: '/visitation',
   },
   {
@@ -50,13 +52,13 @@ const NAV: NavSection[] = [
   {
     key: 'prisoner-intake',
     label: 'Prisoner Intake',
-    icon: <PersonIcon width={18} height={18} />,
+    icon: <IdCardIcon width={18} height={18} />,
     path: '/prisoner-intake',
   },
   {
     key: 'treatment',
     label: 'Treatment',
-    icon: <PersonIcon width={18} height={18} />,
+    icon: <HeartIcon width={18} height={18} />,
     path: '/treatment',
   },
   {
