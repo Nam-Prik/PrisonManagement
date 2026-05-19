@@ -36,6 +36,12 @@ const NAV: NavSection[] = [
     path: '/maintenance',
   },
   {
+    key: 'visitation',
+    label: 'Visitment',
+    icon: <PersonIcon width={18} height={18} />,
+    path: '/visitation',
+  },
+  {
     key: 'incident',
     label: 'Incidents',
     icon: <LockClosedIcon width={18} height={18} />,
@@ -61,6 +67,17 @@ const NAV: NavSection[] = [
         ],
       },
       {
+        label: 'Visitment',
+        links: [
+          {
+            label: 'Visitor-Prisoner Relationship',
+            path: '/reports/visitation/visitor-prisoner-relationship',
+          },
+          { label: 'Visitation Logs', path: '/reports/visitation/visitation-logs' },
+          { label: 'Visitation Analysis', path: '/reports/visitation/visitation-analysis' },
+        ],
+      },
+      {
         label: 'Prisoner Incidents',
         links: [
           { label: 'Incidents by Officer', path: '/reports/incident/by-officer' },
@@ -74,6 +91,14 @@ const NAV: NavSection[] = [
           { label: 'Intake by Date Range', path: '/reports/prisoner-intake/by-date' },
           { label: 'Confiscated Items', path: '/reports/prisoner-intake/confiscated-items' },
           { label: 'Total Items Analysis', path: '/reports/prisoner-intake/total-items' },
+        ],
+      },
+      {
+        label: 'Treatment',
+        links: [
+          { label: 'Prisoner Treatment Experience', path: '/reports/treatment/experience' },
+          { label: 'Medicine Prescription', path: '/reports/treatment/medicine-prescription' },
+          { label: 'Nurse Workload', path: '/reports/treatment/nurse-workload' },
         ],
       },
     ],
