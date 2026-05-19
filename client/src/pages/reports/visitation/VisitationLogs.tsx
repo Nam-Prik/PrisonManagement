@@ -12,17 +12,17 @@ const STATUS_OPTIONS = [
 ]
 
 const COLUMNS: Column<VisitationLogRow & { _idx: number }>[] = [
-  { key: 'prisonerCode', label: 'Prisoner Code', width: '140px' },
+  { key: 'prisoner_code', label: 'Prisoner Code', width: '140px' },
   {
-    key: 'visitmentDate',
+    key: 'visitment_date',
     label: 'Date',
     width: '140px',
     render: (val) => new Date(String(val)).toLocaleDateString(),
   },
   { key: 'duration', label: 'Duration (min)', width: '120px' },
   { key: 'description', label: 'Description' },
-  { key: 'visitorFirstName', label: 'Visitor First' },
-  { key: 'visitorLastName', label: 'Visitor Last' },
+  { key: 'visitor_first_name', label: 'Visitor First' },
+  { key: 'visitor_last_name', label: 'Visitor Last' },
 ]
 
 export default function VisitationLogs() {

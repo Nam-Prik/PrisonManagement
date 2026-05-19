@@ -1,8 +1,16 @@
-import { PlusIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
-import { useEffect, useState } from 'react'
+import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { visitmentApi, type VisitmentData } from '../../api/visitment.api'
-import { Button, Card, PageLoader, Table, type Column, type SortDirection } from '../../components/ui'
+import { type VisitmentData, visitmentApi } from '../../api/visitment.api'
+import {
+  Button,
+  Card,
+  type Column,
+  Modal,
+  PageLoader,
+  type SortDirection,
+  Table,
+} from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import './VisitmentForm.css' // Reuse styles for consistency
 
@@ -12,10 +20,12 @@ export default function VisitmentList() {
   const [error, setError] = useState<string | null>(null)
   const [sortKey, setSortKey] = useState<string>('visitmentDate')
   const [sortDir, setSortDir] = useState<SortDirection>('desc')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [recordToDelete, setRecordToDelete] = useState<number | null>(null)
   const navigate = useNavigate()
   const toast = useToast()
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const res = await visitmentApi.getAll()
@@ -25,15 +35,15 @@ export default function VisitmentList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [loadData])
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
-      setSortDir(prev => (prev === 'asc' ? 'desc' : 'asc'))
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
     } else {
       setSortKey(key)
       setSortDir('asc')
@@ -42,35 +52,46 @@ export default function VisitmentList() {
 
   const displayed = [...data].sort((a, b) => {
     const key = sortKey as keyof VisitmentData
-    let av: any = a[key]
-    let bv: any = b[key]
-    
+    let av = a[key] as string | number | undefined
+    let bv = b[key] as string | number | undefined
+
     if (key === 'visitmentDate') {
-      av = new Date(av).getTime()
-      bv = new Date(bv).getTime()
+      av = av ? new Date(av as string).getTime() : 0
+      bv = bv ? new Date(bv as string).getTime() : 0
     }
-    
-    if (av < bv) return sortDir === 'asc' ? -1 : 1
-    if (av > bv) return sortDir === 'asc' ? 1 : -1
+
+    if ((av ?? 0) < (bv ?? 0)) return sortDir === 'asc' ? -1 : 1
+    if ((av ?? 0) > (bv ?? 0)) return sortDir === 'asc' ? 1 : -1
     return 0
   })
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('Are you sure you want to delete this record?')) return
+  const confirmDelete = (id: number) => {
+    setRecordToDelete(id)
+    setDeleteModalOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (recordToDelete === null) return
     try {
-      await visitmentApi.delete(id)
+      await visitmentApi.delete(recordToDelete)
       toast.success('Record deleted successfully')
       loadData()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Delete failed')
+    } finally {
+      setDeleteModalOpen(false)
+      setRecordToDelete(null)
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'var(--color-success)'
-      case 'cancelled': return 'var(--color-danger)'
-      default: return 'var(--color-primary)'
+      case 'completed':
+        return 'var(--color-success)'
+      case 'cancelled':
+        return 'var(--color-danger)'
+      default:
+        return 'var(--color-primary)'
     }
   }
 
@@ -81,8 +102,12 @@ export default function VisitmentList() {
       label: 'Prisoner',
       render: (_, row) => (
         <div>
-          <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>{row.prisonerName}</div>
-          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{row.prisonerCode}</div>
+          <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
+            {row.prisonerName}
+          </div>
+          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+            {row.prisonerCode}
+          </div>
         </div>
       ),
     },
@@ -112,16 +137,25 @@ export default function VisitmentList() {
       label: 'Status',
       width: '150px',
       render: (val) => (
-        <span style={{ 
-          display: 'inline-flex', 
-          alignItems: 'center', 
-          gap: '6px',
-          fontSize: 'var(--font-size-xs)',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          color: getStatusColor(val as string)
-        }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: getStatusColor(val as string) }} />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: '600',
+            textTransform: 'uppercase',
+            color: getStatusColor(val as string),
+          }}
+        >
+          <span
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: getStatusColor(val as string),
+            }}
+          />
           {val as string}
         </span>
       ),
@@ -138,20 +172,22 @@ export default function VisitmentList() {
       width: '100px',
       render: (_, row) => (
         <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            iconOnly 
+          <Button
+            size="sm"
+            variant="ghost"
+            iconOnly
             onClick={() => navigate(`/visitation/edit/${row.id}`)}
           >
             <Pencil1Icon width={14} height={14} />
           </Button>
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            iconOnly 
+          <Button
+            size="sm"
+            variant="ghost"
+            iconOnly
             style={{ color: 'var(--color-danger)' }}
-            onClick={() => handleDelete(row.id!)}
+            onClick={() => {
+              if (row.id !== undefined) confirmDelete(row.id)
+            }}
           >
             <TrashIcon width={14} height={14} />
           </Button>
@@ -164,14 +200,24 @@ export default function VisitmentList() {
 
   return (
     <div className="visitment-form-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+      <div
+        className="page-header"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 'var(--space-6)',
+        }}
+      >
         <div>
           <h1 className="page-header__title">Visitment List</h1>
-          <p className="page-header__subtitle">Manage and track all registered visitation records.</p>
+          <p className="page-header__subtitle">
+            Manage and track all registered visitation records.
+          </p>
         </div>
         <Button variant="primary" onClick={() => navigate('/visitation/new')}>
           <PlusIcon style={{ marginRight: 'var(--space-2)' }} />
-          New Visitment Form
+          New Visitment
         </Button>
       </div>
 
@@ -188,6 +234,29 @@ export default function VisitmentList() {
           onSort={handleSort}
         />
       </Card>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Delete Record"
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
+            <Button variant="secondary" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              style={{ backgroundColor: 'var(--color-danger)', borderColor: 'var(--color-danger)' }}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this record? This action cannot be undone.</p>
+      </Modal>
     </div>
   )
 }

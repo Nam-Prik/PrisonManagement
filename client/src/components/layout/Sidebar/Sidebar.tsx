@@ -37,7 +37,7 @@ const NAV: NavSection[] = [
   },
   {
     key: 'visitation',
-    label: 'Visitment Form',
+    label: 'Visitment',
     icon: <PersonIcon width={18} height={18} />,
     path: '/visitation',
   },
