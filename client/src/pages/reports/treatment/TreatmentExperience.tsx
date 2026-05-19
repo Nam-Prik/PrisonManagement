@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import { useState } from 'react'
 import { getTreatmentExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
@@ -32,7 +32,7 @@ export default function TreatmentExperience() {
   const [searched, setSearched] = useState(false)
   const [inputError, setInputError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault()
     if (!startDate || !endDate) {
       setInputError('Please select both start and end dates')
@@ -84,7 +84,7 @@ export default function TreatmentExperience() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+                onChange={(e) => setStartDate(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>
@@ -95,7 +95,7 @@ export default function TreatmentExperience() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+                onChange={(e) => setEndDate(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>

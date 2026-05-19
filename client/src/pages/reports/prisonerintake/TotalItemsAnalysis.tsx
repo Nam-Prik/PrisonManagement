@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import { useState } from 'react'
 import { getTotalItemsPerIntake } from '../../../api/prisonerintake-report.api'
 import type { Column } from '../../../components/ui'
@@ -40,7 +40,7 @@ export default function TotalItemsAnalysis() {
   const [dateError, setDateError] = useState<string | undefined>(undefined)
   const [topNError, setTopNError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault()
 
     let valid = true

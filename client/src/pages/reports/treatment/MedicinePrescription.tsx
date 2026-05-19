@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import { useState } from 'react'
 import { getMedicinePrescriptionExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
@@ -23,7 +23,7 @@ export default function MedicinePrescription() {
   const [searched, setSearched] = useState(false)
   const [inputError, setInputError] = useState<string | undefined>(undefined)
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault()
     if (!caution.trim()) {
       setInputError('Please enter a caution filter value')
@@ -63,7 +63,7 @@ export default function MedicinePrescription() {
                 type="text"
                 value={caution}
                 placeholder="e.g. Take"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setCaution(e.target.value)}
+                onChange={(e) => setCaution(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>

@@ -12,7 +12,7 @@ import {
   Table,
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import './VisitmentForm.css' // Reuse styles for consistency
+import './VisitmentForm.css'
 
 export default function VisitmentList() {
   const [data, setData] = useState<VisitmentData[]>([])

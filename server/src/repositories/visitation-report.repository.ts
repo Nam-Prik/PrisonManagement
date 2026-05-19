@@ -9,7 +9,6 @@ import type {
 } from '../models/visitation-report.model.js'
 
 export const visitationReportRepository = {
-  // Report 1: Visitor-Prisoner Relationship Summary
   async findVisitorRelationship(
     filters: VisitorRelationshipFilters
   ): Promise<VisitorPrisonerRelationshipRow[]> {
@@ -76,7 +75,6 @@ export const visitationReportRepository = {
     return result.rows
   },
 
-  // Report 2: Prisoner Visitation Logs
   async findVisitationLogs(filters: VisitationLogFilters): Promise<VisitationLogRow[]> {
     let query = `
       SELECT 
@@ -129,13 +127,11 @@ export const visitationReportRepository = {
     return result.rows
   },
 
-  // Report 3: Prisoner Visitation Support Analysis
   async findVisitationAnalysis(
     filters: VisitationAnalysisFilters
   ): Promise<VisitationAnalysisRow[]> {
     const params: unknown[] = []
 
-    // Subqueries for stats
     let visitStatsFilter = "WHERE v.status = 'completed'"
     let visitorStatsFilter = "WHERE v.status = 'completed'"
 

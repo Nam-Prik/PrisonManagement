@@ -116,7 +116,6 @@ export const visitmentRepository = {
         [dto.prisonerId, dto.visitmentDate, dto.duration, dto.status, dto.description, id]
       )
 
-      // Refresh visitors
       await client.query('DELETE FROM visitmentlineitem WHERE visitment_id = $1', [id])
       for (const visitor of dto.visitors ?? []) {
         await client.query(

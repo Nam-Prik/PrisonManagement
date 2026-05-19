@@ -1,13 +1,16 @@
 import type {
+  VisitationAnalysisFilters,
   VisitationAnalysisRow,
+  VisitationLogFilters,
   VisitationLogRow,
   VisitorPrisonerRelationshipRow,
+  VisitorRelationshipFilters,
 } from '../types/dto/visitation-report.dto'
 import type { ApiResponse } from '../types/response'
 import http from './http'
 
 export const getVisitorRelationship = async (
-  params: Record<string, string>
+  params: VisitorRelationshipFilters
 ): Promise<VisitorPrisonerRelationshipRow[]> => {
   const { data } = await http.get<ApiResponse<VisitorPrisonerRelationshipRow[]>>(
     '/visitation-reports/visitor-relationship',
@@ -17,7 +20,7 @@ export const getVisitorRelationship = async (
 }
 
 export const getVisitationLogs = async (
-  params: Record<string, string>
+  params: VisitationLogFilters
 ): Promise<VisitationLogRow[]> => {
   const { data } = await http.get<ApiResponse<VisitationLogRow[]>>(
     '/visitation-reports/visitation-logs',
@@ -27,7 +30,7 @@ export const getVisitationLogs = async (
 }
 
 export const getVisitationAnalysis = async (
-  params: Record<string, string>
+  params: VisitationAnalysisFilters
 ): Promise<VisitationAnalysisRow[]> => {
   const { data } = await http.get<ApiResponse<VisitationAnalysisRow[]>>(
     '/visitation-reports/visitation-analysis',

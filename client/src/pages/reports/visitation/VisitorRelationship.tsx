@@ -1,8 +1,14 @@
+import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { getVisitorRelationship } from '../../../api/visitation-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Select, Table } from '../../../components/ui'
-import type { VisitorPrisonerRelationshipRow } from '../../../types/dto/visitation-report.dto'
+import type {
+  VisitorPrisonerRelationshipRow,
+  VisitorRelationshipFilters,
+} from '../../../types/dto/visitation-report.dto'
+
+type Row = VisitorPrisonerRelationshipRow & { _idx: number }
 
 const GENDER_OPTIONS = [
   { value: 'All', label: 'All Genders' },
@@ -29,7 +35,7 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-const COLUMNS: Column<VisitorPrisonerRelationshipRow & { _idx: number }>[] = [
+const COLUMNS: Column<Row>[] = [
   { key: 'visitor_first_name', label: 'Visitor First Name' },
   { key: 'visitor_last_name', label: 'Visitor Last Name' },
   { key: 'gender', label: 'Gender', width: '100px' },
@@ -45,7 +51,7 @@ const COLUMNS: Column<VisitorPrisonerRelationshipRow & { _idx: number }>[] = [
 ]
 
 export default function VisitorRelationship() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<VisitorRelationshipFilters>({
     visitorFirstName: '',
     visitorLastName: '',
     prisonerCode: '',
@@ -55,16 +61,16 @@ export default function VisitorRelationship() {
     dateFrom: '',
     dateTo: '',
   })
-  const [rows, setRows] = useState<(VisitorPrisonerRelationshipRow & { _idx: number })[]>([])
+  const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key: keyof VisitorRelationshipFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
