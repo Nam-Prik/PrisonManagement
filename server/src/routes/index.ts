@@ -7,6 +7,8 @@ import maintainerRoutes from './maintainer.routes.js'
 import officerRoutes from './officer.routes.js'
 import prisonLocationRoutes from './prison-location.routes.js'
 import prisonerRoutes from './prisoner.routes.js'
+import prisonerIntakeRoutes from './prisonerintake.routes.js'
+import prisonerIntakeReportRoutes from './prisonerintake-report.routes.js'
 
 const router = new Hono()
 
@@ -18,5 +20,7 @@ router.route('/prisoner', prisonerRoutes)
 router.route('/incident', incidentRoutes)
 router.route('/labor-reports', laborReportRoutes)
 router.route('/incident-reports', incidentReportRoutes)
+router.route('/prisoner-intake', prisonerIntakeRoutes)
+router.route('/prisoner-intake-reports', prisonerIntakeReportRoutes)
 
 export default router

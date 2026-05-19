@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
+import { migrate } from './db/migrate.js'
 import router from './routes/index.js'
 import type { ErrorResponse } from './types/response.js'
 
@@ -34,6 +35,13 @@ app.onError((err, c) => {
 
 const port = Number(process.env.PORT) || 3000
 
-serve({ fetch: app.fetch, port }, () => {
-  console.log(`Server running on port ${port}`)
-})
+migrate()
+  .then(() => {
+    serve({ fetch: app.fetch, port }, () => {
+      console.log(`Server running on port ${port}`)
+    })
+  })
+  .catch((err) => {
+    console.error('Migration failed:', err)
+    process.exit(1)
+  })

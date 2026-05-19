@@ -1,0 +1,19 @@
+.cell-actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}
+
+.btn-danger-ghost {
+  color: var(--color-danger);
+}
+
+.delete-confirm-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.delete-confirm-text__emphasis {
+  color: var(--color-text-primary);
+}
