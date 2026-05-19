@@ -32,7 +32,7 @@ export default function LaborByCost() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const parsedMin = Number(minCost)
-    const parsedMax = maxCost !== '' ? Number(maxCost) : undefined
+    let parsedMax: number | undefined
 
     let valid = true
     if (minCost === '' || Number.isNaN(parsedMin) || parsedMin < 0) {
@@ -43,10 +43,11 @@ export default function LaborByCost() {
     }
 
     if (maxCost !== '') {
-      if (Number.isNaN(parsedMax) || (parsedMax as number) < 0) {
+      parsedMax = Number(maxCost)
+      if (Number.isNaN(parsedMax) || parsedMax < 0) {
         setMaxError('Please enter a valid amount (0 or more)')
         valid = false
-      } else if ((parsedMax as number) < parsedMin) {
+      } else if (parsedMax < parsedMin) {
         setMaxError('Maximum cost must be greater than or equal to minimum cost')
         valid = false
       } else {

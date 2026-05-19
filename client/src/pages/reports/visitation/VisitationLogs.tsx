@@ -1,8 +1,14 @@
+import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { getVisitationLogs } from '../../../api/visitation-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Select, Table } from '../../../components/ui'
-import type { VisitationLogRow } from '../../../types/dto/visitation-report.dto'
+import type {
+  VisitationLogFilters,
+  VisitationLogRow,
+} from '../../../types/dto/visitation-report.dto'
+
+type Row = VisitationLogRow & { _idx: number }
 
 const STATUS_OPTIONS = [
   { value: 'All', label: 'All Statuses' },
@@ -11,7 +17,7 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-const COLUMNS: Column<VisitationLogRow & { _idx: number }>[] = [
+const COLUMNS: Column<Row>[] = [
   { key: 'prisoner_code', label: 'Prisoner Code', width: '140px' },
   {
     key: 'visitment_date',
@@ -26,7 +32,7 @@ const COLUMNS: Column<VisitationLogRow & { _idx: number }>[] = [
 ]
 
 export default function VisitationLogs() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<VisitationLogFilters>({
     prisonerCode: '',
     visitorFirstName: '',
     visitorLastName: '',
@@ -34,23 +40,23 @@ export default function VisitationLogs() {
     dateFrom: '',
     dateTo: '',
   })
-  const [rows, setRows] = useState<(VisitationLogRow & { _idx: number })[]>([])
+  const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key: keyof VisitationLogFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     setSearched(true)
     try {
       const data = await getVisitationLogs(filters)
-      setRows(data.map((item: VisitationLogRow, i: number) => ({ ...item, _idx: i })))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {

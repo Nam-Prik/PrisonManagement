@@ -105,7 +105,6 @@ export const laborReportController = {
 
   async getCostByLocation(c: Context) {
     const status = c.req.query('status') ?? ''
-    // empty = all statuses; only validate when a specific status is provided
     if (status && !VALID_STATUSES.includes(status as (typeof VALID_STATUSES)[number])) {
       return c.json<ErrorResponse>(
         {

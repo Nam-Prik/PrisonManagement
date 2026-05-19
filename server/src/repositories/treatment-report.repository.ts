@@ -6,7 +6,10 @@ import type {
 } from '../models/treatment-report.model.js'
 
 export const treatmentReportRepository = {
-  async findTreatmentExperience(startDate: string, endDate: string): Promise<TreatmentExperienceRow[]> {
+  async findTreatmentExperience(
+    startDate: string,
+    endDate: string
+  ): Promise<TreatmentExperienceRow[]> {
     const result = await pool.query<TreatmentExperienceRow>(
       `SELECT
          t.id,
@@ -31,7 +34,9 @@ export const treatmentReportRepository = {
     return result.rows
   },
 
-  async findMedicinePrescriptionExperience(caution: string): Promise<MedicinePrescriptionExperienceRow[]> {
+  async findMedicinePrescriptionExperience(
+    caution: string
+  ): Promise<MedicinePrescriptionExperienceRow[]> {
     const result = await pool.query<MedicinePrescriptionExperienceRow>(
       `SELECT
          m.code,

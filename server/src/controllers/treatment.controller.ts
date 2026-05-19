@@ -46,7 +46,7 @@ export const treatmentController = {
   async create(c: Context) {
     const dto = await c.req.json<CreateTreatmentDto>()
     const treatment = await treatmentService.create(dto)
-    return c.json<ApiResponse<typeof treatment>>( 
+    return c.json<ApiResponse<typeof treatment>>(
       { data: treatment, message: 'Treatment record created successfully' },
       201
     )

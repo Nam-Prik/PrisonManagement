@@ -35,8 +35,6 @@
   margin-top: var(--space-6);
 }
 
-/* ── Responsive Adjustments ────────────────────── */
-
 @media (max-width: 768px) {
   .form-page__grid {
     grid-template-columns: 1fr;
@@ -50,15 +48,13 @@
 
   .form-page__actions button {
     width: 100%;
-    height: 48px; /* Bigger touch area for mobile */
+    height: 48px;
   }
 
   .visitment-form-page {
     padding: 0 var(--space-2);
   }
 }
-
-/* ── ID field ──────────────────────────────────── */
 
 .field-id {
   display: flex;
@@ -79,8 +75,6 @@
   font-family: var(--font-family-mono, monospace);
   letter-spacing: 0.03em;
 }
-
-/* ── Table ─────────────────────────────────────── */
 
 .labor-items {
   display: flex;
@@ -114,13 +108,14 @@
 }
 
 @media (max-width: 768px) {
-  .labor-table__th, .labor-table__td {
+  .labor-table__th,
+  .labor-table__td {
     padding: var(--space-2) var(--space-2);
     font-size: var(--font-size-xs);
   }
-  
+
   .labor-table {
-    min-width: 600px; /* Reduce min-width on mobile to avoid excessive scrolling */
+    min-width: 600px;
   }
 }
 
@@ -183,7 +178,6 @@
   background-color: var(--color-bg);
 }
 
-/* ── Table inputs ── */
 .labor-table__td .ui-input,
 .labor-table__td .ui-select,
 .labor-table__td .lov-button {
@@ -202,8 +196,6 @@
   display: flex;
   align-items: center;
 }
-
-/* ── Error banner ──────────────────────────────── */
 
 .form-error-banner {
   padding: var(--space-3) var(--space-4);

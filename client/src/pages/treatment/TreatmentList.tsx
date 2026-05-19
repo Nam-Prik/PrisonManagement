@@ -2,7 +2,7 @@ import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deleteTreatment, getTreatments } from '../../api/treatment.api'
-import { Button, Card, Modal, type Column, PageLoader, Table } from '../../components/ui'
+import { Button, Card, type Column, Modal, PageLoader, Table } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { TreatmentListItem } from '../../types/dto/treatment.dto'
 
@@ -55,7 +55,9 @@ export default function TreatmentList() {
       render: (_value, row) => (
         <div>
           <div>{`${row.prisonerFirstName} ${row.prisonerLastName}`}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{row.prisonerCode}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            {row.prisonerCode}
+          </div>
         </div>
       ),
     },
@@ -65,7 +67,9 @@ export default function TreatmentList() {
       render: (_value, row) => (
         <div>
           <div>{`${row.nurseFirstName} ${row.nurseLastName}`}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{row.nurseCode}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            {row.nurseCode}
+          </div>
         </div>
       ),
     },
@@ -85,7 +89,12 @@ export default function TreatmentList() {
       width: '120px',
       render: (_value, row) => (
         <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-          <Button size="sm" variant="ghost" iconOnly onClick={() => navigate(`/treatment/${row.id}`)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            iconOnly
+            onClick={() => navigate(`/treatment/${row.id}`)}
+          >
             <Pencil1Icon width={14} height={14} />
           </Button>
           <Button
@@ -109,11 +118,20 @@ export default function TreatmentList() {
 
   return (
     <>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+      <div
+        className="page-header"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          alignItems: 'flex-start',
+        }}
+      >
         <div>
           <h1 className="page-header__title">Treatment Records</h1>
           <p className="page-header__subtitle">
-            Manage prisoner treatment records and quickly open the treatment form to edit or create entries.
+            Manage prisoner treatment records and quickly open the treatment form to edit or create
+            entries.
           </p>
         </div>
         <Button variant="primary" onClick={() => navigate('/treatment/new')}>

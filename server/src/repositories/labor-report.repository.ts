@@ -6,7 +6,6 @@ import type {
 } from '../models/labor-report.model.js'
 
 export const laborReportRepository = {
-  // Report 1: maintainers' personal info filtered by skill
   async findMaintainersBySkill(skill: string): Promise<MaintainerBySkillRow[]> {
     const result = await pool.query<MaintainerBySkillRow>(
       `SELECT p.first_name, p.last_name, p.age
@@ -19,7 +18,6 @@ export const laborReportRepository = {
     return result.rows
   },
 
-  // Report 2: labor tasks + cost + maintainer name where cost is within [minCost, maxCost]
   async findLaborByCost(minCost: number, maxCost?: number): Promise<LaborByCostRow[]> {
     const hasMax = maxCost !== undefined
     const result = await pool.query<LaborByCostRow>(
@@ -40,8 +38,6 @@ export const laborReportRepository = {
     return result.rows
   },
 
-  // Report 3: total cost + task count per prison location, filterable by status
-  // Pass empty string to include all statuses
   async findCostByLocation(status: string): Promise<CostByLocationRow[]> {
     const hasFilter = status.length > 0
     const result = await pool.query<CostByLocationRow>(

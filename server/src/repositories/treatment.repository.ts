@@ -7,7 +7,7 @@ import type {
   TreatmentListItem,
   TreatmentListRow,
 } from '../models/treatment.model.js'
-import { toNurseOption, toTreatmentDetail, toTreatmentListItem } from '../models/treatment.model.js'
+import { toTreatmentDetail, toTreatmentListItem } from '../models/treatment.model.js'
 
 export const treatmentRepository = {
   async findById(id: number): Promise<TreatmentDetail | null> {
@@ -93,7 +93,10 @@ export const treatmentRepository = {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
-      const existing = await client.query<{ id: number }>('SELECT id FROM treatment WHERE id = $1', [id])
+      const existing = await client.query<{ id: number }>(
+        'SELECT id FROM treatment WHERE id = $1',
+        [id]
+      )
       if (!existing.rows[0]) {
         await client.query('ROLLBACK')
         return null

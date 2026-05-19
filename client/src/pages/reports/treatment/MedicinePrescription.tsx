@@ -1,5 +1,5 @@
+import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
 import { getMedicinePrescriptionExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
@@ -49,6 +49,7 @@ export default function MedicinePrescription() {
     await loadPrescriptionReport(caution)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount with default value
   useEffect(() => {
     void loadPrescriptionReport(caution)
   }, [])
@@ -71,7 +72,7 @@ export default function MedicinePrescription() {
                 type="text"
                 value={caution}
                 placeholder="e.g. Take"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setCaution(e.target.value)}
+                onChange={(e) => setCaution(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>
@@ -86,7 +87,10 @@ export default function MedicinePrescription() {
 
       {searched && (
         <div className="report-results">
-          <Card title={rows.length > 0 ? `Results — ${rows.length} medicine(s)` : 'Results'} padding="flush">
+          <Card
+            title={rows.length > 0 ? `Results — ${rows.length} medicine(s)` : 'Results'}
+            padding="flush"
+          >
             <Table
               columns={COLUMNS}
               data={rows}

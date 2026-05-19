@@ -1,5 +1,5 @@
-import { visitmentRepository } from '../repositories/visitment.repository.js'
 import type { CreateVisitmentDto, UpdateVisitmentDto } from '../dto/visitment.dto.js'
+import { visitmentRepository } from '../repositories/visitment.repository.js'
 
 export const visitmentService = {
   async getAllVisitments() {
@@ -36,5 +36,5 @@ export const visitmentService = {
 
   async getAllPersons() {
     return await visitmentRepository.listAllPersons()
-  }
+  },
 }

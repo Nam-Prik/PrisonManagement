@@ -1,4 +1,3 @@
-import type { ApiResponse } from '../types/response'
 import type {
   CreateTreatmentDto,
   NurseOption,
@@ -6,6 +5,7 @@ import type {
   TreatmentListItem,
   UpdateTreatmentDto,
 } from '../types/dto/treatment.dto'
+import type { ApiResponse } from '../types/response'
 import http from './http'
 
 export const getTreatments = async (): Promise<TreatmentListItem[]> => {
@@ -23,9 +23,7 @@ export const getNurseOptions = async (): Promise<NurseOption[]> => {
   return data.data
 }
 
-export const createTreatment = async (
-  dto: CreateTreatmentDto
-): Promise<TreatmentDetail> => {
+export const createTreatment = async (dto: CreateTreatmentDto): Promise<TreatmentDetail> => {
   const { data } = await http.post<ApiResponse<TreatmentDetail>>('/treatment', dto)
   return data.data
 }

@@ -1,10 +1,16 @@
+import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { getVisitationAnalysis } from '../../../api/visitation-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
-import type { VisitationAnalysisRow } from '../../../types/dto/visitation-report.dto'
+import type {
+  VisitationAnalysisFilters,
+  VisitationAnalysisRow,
+} from '../../../types/dto/visitation-report.dto'
 
-const COLUMNS: Column<VisitationAnalysisRow & { _idx: number }>[] = [
+type Row = VisitationAnalysisRow & { _idx: number }
+
+const COLUMNS: Column<Row>[] = [
   { key: 'prisoner_code', label: 'Prisoner Code', width: '130px' },
   { key: 'prisoner_first_name', label: 'First Name' },
   { key: 'prisoner_last_name', label: 'Last Name' },
@@ -32,7 +38,7 @@ const COLUMNS: Column<VisitationAnalysisRow & { _idx: number }>[] = [
 ]
 
 export default function VisitationAnalysis() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<VisitationAnalysisFilters>({
     prisonerCode: '',
     prisonerFirstName: '',
     prisonerLastName: '',
@@ -41,23 +47,23 @@ export default function VisitationAnalysis() {
     dateFrom: '',
     dateTo: '',
   })
-  const [rows, setRows] = useState<(VisitationAnalysisRow & { _idx: number })[]>([])
+  const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key: keyof VisitationAnalysisFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     setSearched(true)
     try {
       const data = await getVisitationAnalysis(filters)
-      setRows(data.map((item: any, i: number) => ({ ...item, _idx: i })))
+      setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {

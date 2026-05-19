@@ -1,5 +1,5 @@
+import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
 import { getTreatmentExperience } from '../../../api/treatment-report.api'
 import type { Column } from '../../../components/ui'
 import { Button, Card, FormGroup, Input, Table } from '../../../components/ui'
@@ -71,6 +71,7 @@ export default function TreatmentExperience() {
     await loadTreatmentExperience(startDate, endDate)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once on mount with default dates
   useEffect(() => {
     void loadTreatmentExperience(startDate, endDate)
   }, [])
@@ -92,7 +93,7 @@ export default function TreatmentExperience() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+                onChange={(e) => setStartDate(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>
@@ -103,7 +104,7 @@ export default function TreatmentExperience() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+                onChange={(e) => setEndDate(e.target.value)}
                 error={!!inputError}
               />
             </FormGroup>
@@ -118,7 +119,10 @@ export default function TreatmentExperience() {
 
       {searched && (
         <div className="report-results">
-          <Card title={rows.length > 0 ? `Results — ${rows.length} record(s)` : 'Results'} padding="flush">
+          <Card
+            title={rows.length > 0 ? `Results — ${rows.length} record(s)` : 'Results'}
+            padding="flush"
+          >
             <Table
               columns={COLUMNS}
               data={rows}

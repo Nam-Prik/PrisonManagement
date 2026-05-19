@@ -1,5 +1,5 @@
 type RequestOptions = Omit<RequestInit, 'body'> & {
-  params?: Record<string, string>
+  params?: Record<string, string | number | undefined>
 }
 
 interface HttpResponse<T> {
@@ -20,7 +20,14 @@ class HttpClient {
     const { params, body, headers, ...rest } = options
 
     let url = `${this.baseURL}${path}`
-    if (params) url += `?${new URLSearchParams(params)}`
+    if (params) {
+      const searchParams = new URLSearchParams()
+      for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== '') searchParams.set(key, String(value))
+      }
+      const query = searchParams.toString()
+      if (query) url += `?${query}`
+    }
 
     const response = await fetch(url, {
       method,

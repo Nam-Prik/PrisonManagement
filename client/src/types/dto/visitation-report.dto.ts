@@ -27,3 +27,36 @@ export interface VisitationAnalysisRow {
   avg_duration_per_visit: number
   unique_visitor_count: number
 }
+
+export interface VisitorRelationshipFilters {
+  [key: string]: string | undefined
+  visitorFirstName?: string
+  visitorLastName?: string
+  prisonerCode?: string
+  gender?: string
+  bloodType?: string
+  status?: string
+  dateFrom?: string
+  dateTo?: string
+}
+
+export interface VisitationLogFilters {
+  [key: string]: string | undefined
+  prisonerCode?: string
+  visitorFirstName?: string
+  visitorLastName?: string
+  status?: string
+  dateFrom?: string
+  dateTo?: string
+}
+
+export interface VisitationAnalysisFilters {
+  [key: string]: string | undefined
+  prisonerCode?: string
+  prisonerFirstName?: string
+  prisonerLastName?: string
+  scoreFrom?: string
+  scoreTo?: string
+  dateFrom?: string
+  dateTo?: string
+}

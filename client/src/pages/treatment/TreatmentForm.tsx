@@ -2,12 +2,17 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { createTreatment, getNurseOptions, getTreatmentById, updateTreatment } from '../../api/treatment.api'
 import { getPrisonerOptions } from '../../api/prisoner.api'
+import {
+  createTreatment,
+  getNurseOptions,
+  getTreatmentById,
+  updateTreatment,
+} from '../../api/treatment.api'
 import { Button, Card, FormGroup, Input, PageLoader, Select } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import type { NurseOption, UpdateTreatmentDto } from '../../types/dto/treatment.dto'
 import type { PrisonerOption } from '../../types/dto/prisoner.dto'
+import type { NurseOption, UpdateTreatmentDto } from '../../types/dto/treatment.dto'
 
 export default function TreatmentForm() {
   const { id } = useParams<{ id: string }>()
@@ -46,7 +51,9 @@ export default function TreatmentForm() {
           setDiagnoseDate(treatment.diagnoseDate.slice(0, 10))
         }
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load treatment form data'))
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : 'Failed to load treatment form data')
+      )
       .finally(() => setLoading(false))
   }, [id, isEdit])
 

@@ -1,4 +1,9 @@
 import type { Context } from 'hono'
+import type {
+  VisitationAnalysisRow,
+  VisitationLogRow,
+  VisitorPrisonerRelationshipRow,
+} from '../models/visitation-report.model.js'
 import { visitationReportService } from '../services/visitation-report.service.js'
 import type { ApiResponse } from '../types/response.js'
 
@@ -15,7 +20,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitorRelationship(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<VisitorPrisonerRelationshipRow[]>>({
       data,
       message: 'Visitor relationship report retrieved successfully',
     })
@@ -31,7 +36,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitationLogs(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<VisitationLogRow[]>>({
       data,
       message: 'Visitation logs retrieved successfully',
     })
@@ -48,7 +53,7 @@ export const visitationReportController = {
       dateTo: c.req.query('dateTo'),
     }
     const data = await visitationReportService.getVisitationAnalysis(filters)
-    return c.json<ApiResponse<any>>({
+    return c.json<ApiResponse<VisitationAnalysisRow[]>>({
       data,
       message: 'Visitation support analysis retrieved successfully',
     })

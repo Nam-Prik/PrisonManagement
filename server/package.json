@@ -11,6 +11,8 @@
     "db:test": "tsx --env-file=.env src/db/test-connection.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1049.0",
+    "@aws-sdk/s3-request-presigner": "^3.1049.0",
     "@hono/node-server": "^1.13.7",
     "@hono/zod-validator": "^0.4.3",
     "hono": "^4.7.11",

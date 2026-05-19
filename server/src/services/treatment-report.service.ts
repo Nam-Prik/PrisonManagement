@@ -16,7 +16,9 @@ export const treatmentReportService = {
     return rows.map(toTreatmentExperience)
   },
 
-  async getMedicinePrescriptionExperience(caution: string): Promise<MedicinePrescriptionExperience[]> {
+  async getMedicinePrescriptionExperience(
+    caution: string
+  ): Promise<MedicinePrescriptionExperience[]> {
     const rows = await treatmentReportRepository.findMedicinePrescriptionExperience(caution)
     return rows.map(toMedicinePrescriptionExperience)
   },
