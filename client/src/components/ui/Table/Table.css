@@ -14,8 +14,6 @@
   font-family: var(--font-family);
 }
 
-/* --- Header --- */
-
 .table__head {
   background-color: var(--color-bg-secondary);
   border-bottom: 1.5px solid var(--color-border);
@@ -49,10 +47,8 @@
 }
 
 .table__sort-icon {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   opacity: 0.4;
+  flex-shrink: 0;
 }
 
 .table__th--asc .table__sort-icon,
@@ -60,31 +56,6 @@
   opacity: 1;
   color: var(--color-primary);
 }
-
-.table__sort-icon span {
-  display: block;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-}
-
-.table__sort-icon .asc {
-  border-bottom: 4px solid currentColor;
-}
-
-.table__sort-icon .desc {
-  border-top: 4px solid currentColor;
-}
-
-.table__th--asc .table__sort-icon .desc {
-  opacity: 0.25;
-}
-.table__th--desc .table__sort-icon .asc {
-  opacity: 0.25;
-}
-
-/* --- Body --- */
 
 .table__body .table__tr {
   border-bottom: 1px solid var(--color-border);
@@ -104,8 +75,6 @@
   color: var(--color-text-primary);
   vertical-align: middle;
 }
-
-/* --- States --- */
 
 .table__empty,
 .table__loading {
@@ -131,15 +100,11 @@
   }
 }
 
-/* --- Actions column --- */
-
 .table__td--actions {
   white-space: nowrap;
   text-align: right;
   width: 1%;
 }
-
-/* --- Checkbox column --- */
 
 .table__th--check,
 .table__td--check {

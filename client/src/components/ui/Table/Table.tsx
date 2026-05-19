@@ -1,3 +1,5 @@
+import { CaretSortIcon } from '@radix-ui/react-icons'
+import type { ReactNode } from 'react'
 import './Table.css'
 
 export type SortDirection = 'asc' | 'desc' | null
@@ -7,7 +9,7 @@ export interface Column<T> {
   label: string
   sortable?: boolean
   width?: string
-  render?: (value: unknown, row: T, index: number) => React.ReactNode
+  render?: (value: unknown, row: T, index: number) => ReactNode
   className?: string
 }
 
@@ -21,15 +23,6 @@ interface TableProps<T extends object> {
   sortDirection?: SortDirection
   onSort?: (key: string) => void
   className?: string
-}
-
-function SortIcon() {
-  return (
-    <span className="table__sort-icon" aria-hidden="true">
-      <span className="asc" />
-      <span className="desc" />
-    </span>
-  )
 }
 
 export default function Table<T extends object>({
@@ -74,7 +67,9 @@ export default function Table<T extends object>({
                 >
                   <span className="table__th-inner">
                     {col.label}
-                    {col.sortable && <SortIcon />}
+                    {col.sortable && (
+                      <CaretSortIcon className="table__sort-icon" width={14} height={14} />
+                    )}
                   </span>
                 </th>
               )
@@ -103,7 +98,7 @@ export default function Table<T extends object>({
                   <td key={col.key} className={`table__td ${col.className ?? ''}`.trim()}>
                     {col.render
                       ? col.render((row as Record<string, unknown>)[col.key], row, index)
-                      : ((row as Record<string, unknown>)[col.key] as React.ReactNode)}
+                      : ((row as Record<string, unknown>)[col.key] as ReactNode)}
                   </td>
                 ))}
               </tr>

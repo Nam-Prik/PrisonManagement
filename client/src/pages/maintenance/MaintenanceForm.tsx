@@ -1,4 +1,5 @@
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
+import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import {
@@ -113,16 +114,12 @@ export default function MaintenanceForm() {
     setLaborItems((prev) => prev.filter((_, i) => i !== index))
   }
 
-  /* ── Location LOV display ── */
-
   const selectedLocation = locations.find((l) => l.id === prisonLocationId)
   const locationDisplay = selectedLocation
     ? `[${selectedLocation.code}] ${selectedLocation.name}`
     : ''
 
-  /* ── Submit ── */
-
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
 

@@ -1,3 +1,4 @@
+import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { getMaintainersBySkill } from '../../../api/labor-report.api'
 import type { Column } from '../../../components/ui'
@@ -22,7 +23,7 @@ export default function MaintainersBySkill() {
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

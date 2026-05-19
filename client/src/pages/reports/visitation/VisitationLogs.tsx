@@ -50,7 +50,7 @@ export default function VisitationLogs() {
     setSearched(true)
     try {
       const data = await getVisitationLogs(filters)
-      setRows(data.map((item: any, i: number) => ({ ...item, _idx: i })))
+      setRows(data.map((item: VisitationLogRow, i: number) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {

@@ -1,3 +1,4 @@
+import type { SelectHTMLAttributes } from 'react'
 import './Form.css'
 
 type InputSize = 'sm' | 'md' | 'lg'
@@ -8,7 +9,7 @@ interface SelectOption {
   disabled?: boolean
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   inputSize?: InputSize
   error?: boolean
   options: SelectOption[]

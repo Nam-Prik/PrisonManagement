@@ -1,3 +1,5 @@
+import { Cross2Icon } from '@radix-ui/react-icons'
+import type { ReactNode } from 'react'
 import { useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import './Modal.css'
@@ -9,28 +11,9 @@ interface ModalProps {
   onClose: () => void
   title?: string
   size?: ModalSize
-  footer?: React.ReactNode
+  footer?: ReactNode
   closeOnBackdrop?: boolean
-  children: React.ReactNode
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  )
+  children: ReactNode
 }
 
 export default function Modal({
@@ -94,7 +77,7 @@ export default function Modal({
               onClick={onClose}
               aria-label="Close modal"
             >
-              <CloseIcon />
+              <Cross2Icon width={18} height={18} />
             </button>
           </div>
         )}

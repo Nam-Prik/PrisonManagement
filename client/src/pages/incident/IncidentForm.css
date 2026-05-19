@@ -1,0 +1,154 @@
+.form-page__section {
+  margin-bottom: var(--space-5);
+}
+
+.form-page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  margin-bottom: var(--space-5);
+  transition: color var(--transition-fast);
+}
+
+.form-page-back:hover {
+  color: var(--color-primary);
+}
+
+.form-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.form-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.field-id {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field-id__value {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--space-3);
+  background-color: var(--color-bg-muted, var(--color-bg));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono, monospace);
+  letter-spacing: 0.03em;
+}
+
+.form-error-banner {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin-bottom: var(--space-4);
+}
+
+/* ── Involved prisoners table ───────────────────────── */
+
+.involved-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.involved-items__wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.involved-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.involved-table__th {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.involved-table__th--idx {
+  width: 40px;
+  text-align: center;
+}
+
+.involved-table__th--actions {
+  width: 60px;
+}
+
+.involved-table__row {
+  background-color: var(--color-surface);
+}
+
+.involved-table__row:not(:last-child) .involved-table__td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.involved-table__td {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  vertical-align: middle;
+}
+
+.involved-table__td--idx {
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-size-xs);
+}
+
+.involved-table__td--name {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.involved-table__td--actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.involved-table__row--adding {
+  background-color: var(--color-primary-bg);
+}
+
+.involved-table__empty {
+  padding: var(--space-6);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background-color: var(--color-bg);
+}
+
+.involved-items__toolbar {
+  display: flex;
+  align-items: center;
+}

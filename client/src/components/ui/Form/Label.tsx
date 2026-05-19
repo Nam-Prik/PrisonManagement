@@ -1,6 +1,7 @@
+import type { LabelHTMLAttributes } from 'react'
 import './Form.css'
 
-interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
+interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
   required?: boolean
 }
 

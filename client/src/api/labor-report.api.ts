@@ -10,9 +10,11 @@ export const getMaintainersBySkill = async (skill: string): Promise<MaintainerBy
   return data.data
 }
 
-export const getLaborByCost = async (minCost: number): Promise<LaborByCost[]> => {
+export const getLaborByCost = async (minCost: number, maxCost?: number): Promise<LaborByCost[]> => {
+  const params: Record<string, string> = { minCost: String(minCost) }
+  if (maxCost !== undefined) params.maxCost = String(maxCost)
   const { data } = await http.get<ApiResponse<LaborByCost[]>>('/labor-reports/labor-by-cost', {
-    params: { minCost: String(minCost) },
+    params,
   })
   return data.data
 }

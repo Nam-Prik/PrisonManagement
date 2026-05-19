@@ -1,0 +1,35 @@
+.cell-location {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cell-location__name {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.cell-muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.cell-actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}
+
+.btn-danger-ghost {
+  color: var(--color-danger);
+}
+
+.delete-confirm-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.delete-confirm-text__emphasis {
+  color: var(--color-text-primary);
+}
