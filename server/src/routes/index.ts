@@ -5,6 +5,7 @@ import laborReportRoutes from './labor-report.routes.js'
 import maintainanceRoutes from './maintainance.routes.js'
 import maintainerRoutes from './maintainer.routes.js'
 import officerRoutes from './officer.routes.js'
+import officerReportRoutes from './officer-report.routes.js'
 import prisonLocationRoutes from './prison-location.routes.js'
 import prisonerRoutes from './prisoner.routes.js'
 import prisonerIntakeRoutes from './prisonerintake.routes.js'
@@ -30,5 +31,6 @@ router.route('/prisoner-intake', prisonerIntakeRoutes)
 router.route('/prisoner-intake-reports', prisonerIntakeReportRoutes)
 router.route('/treatment-reports', treatmentReportRoutes)
 router.route('/treatment', treatmentRoutes)
+router.route('/officer-reports', officerReportRoutes)
 
 export default router
