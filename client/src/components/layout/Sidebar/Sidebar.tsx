@@ -102,6 +102,14 @@ const NAV: NavSection[] = [
         ],
       },
       {
+        label: 'Officer & Routines',
+        links: [
+          { label: 'Officer Routines', path: '/reports/officer/routines' },
+          { label: 'Irregularities List', path: '/reports/officer/irregularities-list' },
+          { label: 'Irregularities Summary', path: '/reports/officer/irregularities-summary' },
+        ],
+      },
+      {
         label: 'Treatment',
         links: [
           { label: 'Prisoner Treatment Experience', path: '/reports/treatment/experience' },

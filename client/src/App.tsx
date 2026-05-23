@@ -13,6 +13,9 @@ import TopPrisonersByLocation from './pages/reports/incident/TopPrisonersByLocat
 import CostByLocation from './pages/reports/maintenance/CostByLocation'
 import LaborByCost from './pages/reports/maintenance/LaborByCost'
 import MaintainersBySkill from './pages/reports/maintenance/MaintainersBySkill'
+import IrregularitiesList from './pages/reports/officer/IrregularitiesList'
+import IrregularitiesSummary from './pages/reports/officer/IrregularitiesSummary'
+import OfficerRoutines from './pages/reports/officer/OfficerRoutines'
 import ConfiscatedItems from './pages/reports/prisonerintake/ConfiscatedItems'
 import IntakeByDateRange from './pages/reports/prisonerintake/IntakeByDateRange'
 import TotalItemsAnalysis from './pages/reports/prisonerintake/TotalItemsAnalysis'
@@ -65,6 +68,9 @@ export default function App() {
         <Route path="/treatment" element={<TreatmentList />} />
         <Route path="/treatment/new" element={<TreatmentForm />} />
         <Route path="/treatment/:id" element={<TreatmentForm />} />
+        <Route path="/reports/officer/routines" element={<OfficerRoutines />} />
+        <Route path="/reports/officer/irregularities-list" element={<IrregularitiesList />} />
+        <Route path="/reports/officer/irregularities-summary" element={<IrregularitiesSummary />} />
       </Route>
     </Routes>
   )
