@@ -1,12 +1,4 @@
-import {
-  BarChartIcon,
-  CalendarIcon,
-  ChevronRightIcon,
-  GearIcon,
-  HeartIcon,
-  IdCardIcon,
-  LockClosedIcon,
-} from '@radix-ui/react-icons'
+import { BarChartIcon, ChevronRightIcon, FileTextIcon, ListBulletIcon } from '@radix-ui/react-icons'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
@@ -27,39 +19,37 @@ interface NavSection {
   label: string
   icon: ReactNode
   path?: string
+  links?: SidebarNavLink[]
   groups?: NavGroup[]
 }
 
 const NAV: NavSection[] = [
   {
-    key: 'maintenance',
-    label: 'Maintenance',
-    icon: <GearIcon width={18} height={18} />,
-    path: '/maintenance',
+    key: 'line-items',
+    label: 'Line Items',
+    icon: <ListBulletIcon width={18} height={18} />,
+    links: [
+      { label: 'Maintenance', path: '/maintenance' },
+      { label: 'Visitment', path: '/visitation' },
+      { label: 'Treatment', path: '/treatment' },
+      { label: 'Incidents', path: '/incident' },
+      { label: 'Prisoner Intake', path: '/prisoner-intake' },
+    ],
   },
   {
-    key: 'visitation',
-    label: 'Visitment',
-    icon: <CalendarIcon width={18} height={18} />,
-    path: '/visitation',
-  },
-  {
-    key: 'incident',
-    label: 'Incidents',
-    icon: <LockClosedIcon width={18} height={18} />,
-    path: '/incident',
-  },
-  {
-    key: 'prisoner-intake',
-    label: 'Prisoner Intake',
-    icon: <IdCardIcon width={18} height={18} />,
-    path: '/prisoner-intake',
-  },
-  {
-    key: 'treatment',
-    label: 'Treatment',
-    icon: <HeartIcon width={18} height={18} />,
-    path: '/treatment',
+    key: 'simple-forms',
+    label: 'Simple Forms',
+    icon: <FileTextIcon width={18} height={18} />,
+    links: [
+      { label: 'Person', path: '/person' },
+      { label: 'Prisoner', path: '/prisoner' },
+      { label: 'Prison Location', path: '/prison-location' },
+      { label: 'Medicine', path: '/medicine' },
+      { label: 'Officer', path: '/officer' },
+      { label: 'Nurse', path: '/nurse' },
+      { label: 'Maintainer', path: '/maintainer' },
+      { label: 'Irregularity', path: '/irregularity' },
+    ],
   },
   {
     key: 'reports',
@@ -116,11 +106,15 @@ const NAV: NavSection[] = [
 export default function Sidebar() {
   const location = useLocation()
 
+  const isLinksActive = (links: SidebarNavLink[]) =>
+    links.some((l) => location.pathname === l.path || location.pathname.startsWith(`${l.path}/`))
+
   const isGroupActive = (groups: NavGroup[]) =>
     groups.some((g) => g.links.some((l) => location.pathname.startsWith(l.path)))
 
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     NAV.reduce<Record<string, boolean>>((acc, section) => {
+      if (section.links) acc[section.key] = isLinksActive(section.links)
       if (section.groups) acc[section.key] = isGroupActive(section.groups)
       return acc
     }, {})
@@ -131,22 +125,19 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
-        <div className="sidebar__brand-icon">
-          <LockClosedIcon width={20} height={20} />
-        </div>
-        <div className="sidebar__brand-text">
-          <span className="sidebar__brand-name">ZedYor</span>
-          <span className="sidebar__brand-sub">Prison Management</span>
-        </div>
+        <img src="/logo.png" alt="Logo" className="sidebar__brand-icon" />
+        <span className="sidebar__brand-name">Prison Management System</span>
       </div>
 
       <nav className="sidebar__nav" aria-label="Main navigation">
         {NAV.map((section) => {
           const isActive = section.path
             ? location.pathname === section.path || location.pathname.startsWith(`${section.path}/`)
-            : section.groups
-              ? isGroupActive(section.groups)
-              : false
+            : section.links
+              ? isLinksActive(section.links)
+              : section.groups
+                ? isGroupActive(section.groups)
+                : false
 
           const isOpen = open[section.key] ?? false
 
@@ -183,6 +174,23 @@ export default function Sidebar() {
               </button>
 
               <div className={`sidebar__groups${isOpen ? ' sidebar__groups--open' : ''}`}>
+                {section.links && (
+                  <div className="sidebar__group sidebar__group--flat">
+                    {section.links.map((link) => (
+                      <NavLink
+                        key={link.path}
+                        to={link.path}
+                        className={({ isActive: a }) =>
+                          `sidebar__link${a ? ' sidebar__link--active' : ''}`
+                        }
+                      >
+                        <span className="sidebar__link-dot" aria-hidden="true" />
+                        {link.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+
                 {section.groups?.map((group) => (
                   <div key={group.label} className="sidebar__group">
                     <span className="sidebar__group-label">{group.label}</span>
@@ -205,10 +213,6 @@ export default function Sidebar() {
           )
         })}
       </nav>
-
-      <div className="sidebar__footer">
-        <p className="sidebar__footer-text">© 2026 ZedYor</p>
-      </div>
     </aside>
   )
 }

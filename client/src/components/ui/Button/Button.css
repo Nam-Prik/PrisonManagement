@@ -14,9 +14,7 @@
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
-    color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    opacity var(--transition-fast);
+    color var(--transition-fast);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -71,7 +69,6 @@
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background-color: var(--color-bg);
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
@@ -83,7 +80,8 @@
 }
 
 .btn--outline:hover:not(:disabled) {
-  background-color: var(--color-primary-bg);
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .btn--ghost {
@@ -93,7 +91,6 @@
 }
 
 .btn--ghost:hover:not(:disabled) {
-  background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
 

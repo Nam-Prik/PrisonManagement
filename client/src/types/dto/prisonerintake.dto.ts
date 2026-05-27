@@ -23,19 +23,9 @@ export interface ConfiscatedItemInput {
 }
 
 export interface CreatePrisonerIntakeDto {
-  firstName: string
-  lastName: string
-  identificationNo: string
-  gender: Gender
-  address: string
-  contactNo: string
-  age: number
-  dateOfBirth: string
-  bloodType: BloodType
-  evaluation?: string
+  prisonerId: number
   intakeDate: string
   initialHealthStatus: HealthStatus
-  mugshotImgKey?: string
   confiscatedItems: ConfiscatedItemInput[]
 }
 

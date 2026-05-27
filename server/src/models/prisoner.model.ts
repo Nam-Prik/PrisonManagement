@@ -14,6 +14,19 @@ export interface PrisonerOption {
   evaluationScore: number | null
 }
 
+export interface PrisonerDetail {
+  id: number
+  code: string
+  personId: number
+  mugshotImgKey: string | null
+  mugshotSignedUrl: string | null
+  evaluation: string | null
+  evaluationScore: number | null
+  prisonIntakeId: number
+  firstName: string
+  lastName: string
+}
+
 export const toPrisonerOption = (row: PrisonerRow): PrisonerOption => ({
   id: row.id,
   code: row.code,

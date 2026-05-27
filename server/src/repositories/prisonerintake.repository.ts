@@ -69,6 +69,15 @@ export const prisonerIntakeRepository = {
     try {
       await client.query('BEGIN')
 
+      const prisonerCheck = await client.query<{ id: number }>(
+        'SELECT id FROM Prisoner WHERE id = $1',
+        [dto.prisonerId]
+      )
+      if (!prisonerCheck.rows[0]) {
+        await client.query('ROLLBACK')
+        return null
+      }
+
       const intakeResult = await client.query<{ id: number }>(
         `INSERT INTO PrisonerIntake (intake_date, initial_health_status)
          VALUES ($1, $2) RETURNING id`,
@@ -76,35 +85,10 @@ export const prisonerIntakeRepository = {
       )
       const intakeId = intakeResult.rows[0].id
 
-      const personResult = await client.query<{ id: number }>(
-        `INSERT INTO Person
-           (first_name, last_name, identification_no, gender, address, contact_no, age, date_of_birth, blood_type)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-        [
-          dto.firstName,
-          dto.lastName,
-          dto.identificationNo,
-          dto.gender,
-          dto.address,
-          dto.contactNo,
-          dto.age,
-          dto.dateOfBirth,
-          dto.bloodType,
-        ]
-      )
-      const personId = personResult.rows[0].id
-
-      const codeResult = await client.query<{ max_num: string | null }>(
-        `SELECT MAX(CAST(SUBSTRING(code, 3) AS INT)) AS max_num FROM Prisoner`
-      )
-      const nextNum = (Number(codeResult.rows[0].max_num) || 0) + 1
-      const code = `P-${String(nextNum).padStart(4, '0')}`
-
-      await client.query(
-        `INSERT INTO Prisoner (code, person_id, evaluation, prison_intake_id, mugshot_img_key)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [code, personId, dto.evaluation ?? null, intakeId, dto.mugshotImgKey ?? null]
-      )
+      await client.query(`UPDATE Prisoner SET prison_intake_id = $1 WHERE id = $2`, [
+        intakeId,
+        dto.prisonerId,
+      ])
 
       for (const item of dto.confiscatedItems) {
         await client.query(
