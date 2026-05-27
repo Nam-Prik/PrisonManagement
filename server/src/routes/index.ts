@@ -1,10 +1,14 @@
 import { Hono } from 'hono'
 import incidentRoutes from './incident.routes.js'
 import incidentReportRoutes from './incident-report.routes.js'
+import irregularityRoutes from './irregularity.routes.js'
 import laborReportRoutes from './labor-report.routes.js'
 import maintainanceRoutes from './maintainance.routes.js'
 import maintainerRoutes from './maintainer.routes.js'
+import medicineRoutes from './medicine.routes.js'
+import nurseRoutes from './nurse.routes.js'
 import officerRoutes from './officer.routes.js'
+import personRoutes from './person.routes.js'
 import prisonLocationRoutes from './prison-location.routes.js'
 import prisonerRoutes from './prisoner.routes.js'
 import prisonerIntakeRoutes from './prisonerintake.routes.js'
@@ -16,11 +20,15 @@ import visitmentRoutes from './visitment.routes.js'
 
 const router = new Hono()
 
+router.route('/person', personRoutes)
 router.route('/maintainer', maintainerRoutes)
 router.route('/maintainance', maintainanceRoutes)
 router.route('/prison-location', prisonLocationRoutes)
+router.route('/medicine', medicineRoutes)
 router.route('/officer', officerRoutes)
+router.route('/nurse', nurseRoutes)
 router.route('/prisoner', prisonerRoutes)
+router.route('/irregularity', irregularityRoutes)
 router.route('/incident', incidentRoutes)
 router.route('/labor-reports', laborReportRoutes)
 router.route('/visitation-reports', visitationReportRoutes)

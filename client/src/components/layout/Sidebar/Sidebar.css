@@ -186,6 +186,10 @@
   gap: 1px;
 }
 
+.sidebar__group--flat {
+  padding-top: var(--space-1);
+}
+
 /* Group category label */
 .sidebar__group-label {
   font-size: var(--font-size-xs);
