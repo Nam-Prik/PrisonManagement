@@ -59,8 +59,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) - 3px);
+  border-left: 3px solid transparent;
+  border-radius: 0;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.6);
   font-size: var(--font-size-sm);
@@ -73,7 +74,7 @@
 }
 
 .sidebar__section-link--active {
-  background-color: rgba(230, 84, 22, 0.15);
+  border-left-color: var(--color-primary);
   color: var(--color-white);
 }
 
@@ -89,10 +90,13 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) - 3px);
+  border-left: 3px solid transparent;
+  border-radius: 0;
   cursor: pointer;
-  border: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
   background: none;
   width: 100%;
   text-align: left;
@@ -110,7 +114,7 @@
 }
 
 .sidebar__section-header--active {
-  background-color: rgba(230, 84, 22, 0.1);
+  border-left-color: var(--color-primary);
 }
 
 .sidebar__section-left {
@@ -198,26 +202,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) - 3px);
+  border-left: 3px solid transparent;
+  border-radius: 0;
   font-size: var(--font-size-sm);
   color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
-  position: relative;
   transition: color var(--transition-fast);
-}
-
-.sidebar__link::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 0;
-  background-color: var(--color-primary);
-  border-radius: var(--radius-full);
-  transition: height var(--transition-normal);
 }
 
 .sidebar__link:hover {
@@ -225,12 +216,8 @@
 }
 
 .sidebar__link--active {
-  background-color: rgba(230, 84, 22, 0.15);
+  border-left-color: var(--color-primary);
   color: var(--color-white);
-}
-
-.sidebar__link--active::before {
-  height: 55%;
 }
 
 .sidebar__link-dot {
