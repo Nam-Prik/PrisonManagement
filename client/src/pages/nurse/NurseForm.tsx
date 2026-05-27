@@ -3,10 +3,33 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { createNurse, getNurseById, updateNurse } from '../../api/nurse.api'
 import { getPersons } from '../../api/person.api'
-import { Button, Card, FormGroup, Input, Label, PageLoader, Select } from '../../components/ui'
+import {
+  Button,
+  Card,
+  FormGroup,
+  Input,
+  Label,
+  LovButton,
+  type LovColumn,
+  PageLoader,
+  Textarea,
+} from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { GENDERS } from '../../types/dto/nurse.dto'
 import type { Person } from '../../types/dto/person.dto'
+
+const PERSON_LOV_COLUMNS: LovColumn<Person>[] = [
+  { key: 'id', label: '#', width: '70px' },
+  { key: 'firstName', label: 'First Name' },
+  { key: 'lastName', label: 'Last Name' },
+  { key: 'gender', label: 'Gender', width: '110px' },
+  {
+    key: 'dateOfBirth',
+    label: 'Date Of Birth',
+    width: '140px',
+    render: (value) => String(value ?? '').slice(0, 10),
+  },
+]
 
 export default function NurseForm() {
   const { id } = useParams<{ id: string }>()
@@ -37,11 +60,10 @@ export default function NurseForm() {
       .finally(() => setLoading(false))
   }, [id, isEdit, toast])
 
-  const personOptions = persons.map((p) => ({
-    value: String(p.id),
-    label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
-  }))
   const selectedPerson = persons.find((p) => String(p.id) === personId)
+  const personDisplayValue = selectedPerson
+    ? `[#${selectedPerson.id}] ${selectedPerson.firstName} ${selectedPerson.lastName}`
+    : ''
   const genderValue = selectedPerson?.gender ?? gender
 
   const handleSubmit = async () => {
@@ -89,24 +111,57 @@ export default function NurseForm() {
       <div className="page-header">
         <h1 className="page-header__title">{isEdit ? 'Edit Nurse' : 'New Nurse'}</h1>
       </div>
-      <Card>
-        <div className="form-page__grid">
+      <div className="form-page__section">
+        <Card title="Person Information">
+          <div className="form-page__grid">
+            <FormGroup>
+              <Label required>Person</Label>
+              <LovButton<Person>
+                displayValue={personDisplayValue}
+                placeholder="Select person..."
+                modalTitle="Select Person"
+                columns={PERSON_LOV_COLUMNS}
+                data={persons}
+                rowKey="id"
+                onSelect={(person) => {
+                  setPersonId(String(person.id))
+                  setGender(person.gender)
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="gender">Gender</Label>
+              <Input id="gender" value={genderValue} disabled />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="dob">Date Of Birth</Label>
+              <Input id="dob" value={selectedPerson?.dateOfBirth?.slice(0, 10) ?? ''} disabled />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                value={selectedPerson?.age != null ? String(selectedPerson.age) : ''}
+                disabled
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="bt">Blood Type</Label>
+              <Input id="bt" value={selectedPerson?.bloodType ?? ''} disabled />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="cn">Contact No.</Label>
+              <Input id="cn" value={selectedPerson?.contactNo ?? ''} disabled />
+            </FormGroup>
+          </div>
           <FormGroup>
-            <Label htmlFor="person" required>
-              Person
-            </Label>
-            <Select
-              id="person"
-              placeholder="Select person"
-              options={personOptions}
-              value={personId}
-              onChange={(e) => {
-                const nextPersonId = e.target.value
-                setPersonId(nextPersonId)
-                setGender(persons.find((p) => String(p.id) === nextPersonId)?.gender ?? '')
-              }}
-            />
+            <Label htmlFor="addr">Address</Label>
+            <Textarea id="addr" value={selectedPerson?.address ?? ''} rows={2} disabled />
           </FormGroup>
+        </Card>
+      </div>
+      <Card title="Occupation Information">
+        <div className="form-page__grid">
           <FormGroup>
             <Label htmlFor="code" required>
               Code
@@ -117,12 +172,6 @@ export default function NurseForm() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="gender" required>
-              Gender
-            </Label>
-            <Input id="gender" value={genderValue} disabled />
           </FormGroup>
         </div>
       </Card>

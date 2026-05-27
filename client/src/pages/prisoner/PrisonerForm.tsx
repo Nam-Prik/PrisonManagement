@@ -10,8 +10,9 @@ import {
   FormGroup,
   Input,
   Label,
+  LovButton,
+  type LovColumn,
   PageLoader,
-  Select,
   Textarea,
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
@@ -19,6 +20,43 @@ import type { Person } from '../../types/dto/person.dto'
 import type { PrisonerIntakeListItem } from '../../types/dto/prisonerintake.dto'
 import '../maintenance/MaintenanceForm.css'
 import './PrisonerIntakeForm.css'
+
+const PERSON_LOV_COLUMNS: LovColumn<Person>[] = [
+  { key: 'id', label: '#', width: '70px' },
+  { key: 'firstName', label: 'First Name' },
+  { key: 'lastName', label: 'Last Name' },
+  { key: 'gender', label: 'Gender', width: '110px' },
+]
+
+const INTAKE_LOV_COLUMNS: LovColumn<PrisonerIntakeListItem>[] = [
+  { key: 'id', label: '#', width: '70px' },
+  {
+    key: 'intakeDate',
+    label: 'Intake Date',
+    width: '140px',
+    render: (value) =>
+      new Date(value as string).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+  },
+  { key: 'initialHealthStatus', label: 'Health Status', width: '180px' },
+  {
+    key: 'prisonerCode',
+    label: 'Prisoner Code',
+    width: '140px',
+    render: (value) => (typeof value === 'string' && value ? value : 'Pending'),
+  },
+  {
+    key: 'firstName',
+    label: 'Prisoner',
+    render: (_, row) =>
+      row.firstName || row.lastName
+        ? `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim()
+        : 'Not created yet',
+  },
+]
 
 export default function PrisonerForm() {
   const { id } = useParams<{ id: string }>()
@@ -147,24 +185,23 @@ export default function PrisonerForm() {
     }
   }
 
-  const personOptions = persons.map((p) => ({
-    value: String(p.id),
-    label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
-  }))
-  const intakeOptions = intakes.map((intake) => {
+  const selectedPerson = persons.find((p) => String(p.id) === personId)
+  const personDisplayValue = selectedPerson
+    ? `[#${selectedPerson.id}] ${selectedPerson.firstName} ${selectedPerson.lastName}`
+    : ''
+  const selectedIntake = intakes.find((intake) => String(intake.id) === prisonIntakeId)
+  const formatIntake = (intake: PrisonerIntakeListItem) => {
     const prisonerName =
       intake.firstName || intake.lastName
         ? ` - ${`${intake.firstName ?? ''} ${intake.lastName ?? ''}`.trim()}`
         : ''
     const prisonerCode = intake.prisonerCode ? ` - ${intake.prisonerCode}` : ''
 
-    return {
-      value: String(intake.id),
-      label: `[#${intake.id}] ${new Date(intake.intakeDate).toLocaleDateString('en-GB')} - ${
-        intake.initialHealthStatus
-      }${prisonerCode}${prisonerName}`,
-    }
-  })
+    return `[#${intake.id}] ${new Date(intake.intakeDate).toLocaleDateString('en-GB')} - ${
+      intake.initialHealthStatus
+    }${prisonerCode}${prisonerName}`
+  }
+  const intakeDisplayValue = selectedIntake ? formatIntake(selectedIntake) : ''
 
   if (loading) return <PageLoader />
 
@@ -234,25 +271,27 @@ export default function PrisonerForm() {
                 <Label htmlFor="person" required>
                   Person
                 </Label>
-                <Select
-                  id="person"
-                  placeholder="Select person"
-                  options={personOptions}
-                  value={personId}
-                  onChange={(e) => setPersonId(e.target.value)}
+                <LovButton<Person>
+                  displayValue={personDisplayValue}
+                  placeholder="Select person..."
+                  modalTitle="Select Person"
+                  columns={PERSON_LOV_COLUMNS}
+                  data={persons}
+                  rowKey="id"
+                  onSelect={(person) => setPersonId(String(person.id))}
                 />
               </FormGroup>
             )}
             <FormGroup>
-              <Label htmlFor="intake-id" required>
-                Prison Intake
-              </Label>
-              <Select
-                id="intake-id"
-                placeholder="Select intake record"
-                options={intakeOptions}
-                value={prisonIntakeId}
-                onChange={(e) => setPrisonIntakeId(e.target.value)}
+              <Label required>Prison Intake</Label>
+              <LovButton<PrisonerIntakeListItem>
+                displayValue={intakeDisplayValue}
+                placeholder="Select intake record..."
+                modalTitle="Select Prison Intake"
+                columns={INTAKE_LOV_COLUMNS}
+                data={intakes}
+                rowKey="id"
+                onSelect={(intake) => setPrisonIntakeId(String(intake.id))}
               />
             </FormGroup>
             <FormGroup>

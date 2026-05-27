@@ -9,6 +9,8 @@ import {
   FormGroup,
   Input,
   Label,
+  LovButton,
+  type LovColumn,
   PageLoader,
   Select,
   Textarea,
@@ -19,6 +21,18 @@ import type { Person } from '../../types/dto/person.dto'
 
 const SKILL_OPTIONS = MAINTENANCE_SKILLS.map((s) => ({ value: s, label: s }))
 const SPEC_OPTIONS = SPECIALIZATIONS.map((s) => ({ value: s, label: s }))
+const PERSON_LOV_COLUMNS: LovColumn<Person>[] = [
+  { key: 'id', label: '#', width: '70px' },
+  { key: 'firstName', label: 'First Name' },
+  { key: 'lastName', label: 'Last Name' },
+  { key: 'gender', label: 'Gender', width: '110px' },
+  {
+    key: 'dateOfBirth',
+    label: 'Date Of Birth',
+    width: '140px',
+    render: (value) => String(value ?? '').slice(0, 10),
+  },
+]
 
 export default function MaintainerForm() {
   const { id } = useParams<{ id: string }>()
@@ -55,10 +69,9 @@ export default function MaintainerForm() {
   }, [id, isEdit, toast])
 
   const selectedPerson = persons.find((p) => String(p.id) === personId)
-  const personOptions = persons.map((p) => ({
-    value: String(p.id),
-    label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
-  }))
+  const personDisplayValue = selectedPerson
+    ? `[#${selectedPerson.id}] ${selectedPerson.firstName} ${selectedPerson.lastName}`
+    : ''
 
   const handleSubmit = async () => {
     if (!personId) {
@@ -115,15 +128,15 @@ export default function MaintainerForm() {
         <Card title="Person Information">
           <div className="form-page__grid">
             <FormGroup>
-              <Label htmlFor="person" required>
-                Person
-              </Label>
-              <Select
-                id="person"
-                placeholder="Select person"
-                options={personOptions}
-                value={personId}
-                onChange={(e) => setPersonId(e.target.value)}
+              <Label required>Person</Label>
+              <LovButton<Person>
+                displayValue={personDisplayValue}
+                placeholder="Select person..."
+                modalTitle="Select Person"
+                columns={PERSON_LOV_COLUMNS}
+                data={persons}
+                rowKey="id"
+                onSelect={(person) => setPersonId(String(person.id))}
               />
             </FormGroup>
             <FormGroup>
