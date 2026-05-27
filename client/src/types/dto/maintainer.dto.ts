@@ -60,15 +60,7 @@ export interface Maintainer {
 }
 
 export interface CreateMaintainerDto {
-  firstName: string
-  lastName: string
-  identificationNo?: string
-  gender: Gender
-  address: string
-  contactNo: string
-  age: number
-  dateOfBirth: string
-  bloodType: BloodType
+  personId: number
   maintenanceSkill: MaintenanceSkill
   skillDescription?: string
   companyName: string

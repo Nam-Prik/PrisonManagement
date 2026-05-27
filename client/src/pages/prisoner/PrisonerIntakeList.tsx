@@ -97,9 +97,9 @@ export default function PrisonerIntakeList() {
     const q = search.toLowerCase()
     displayed = displayed.filter(
       (r) =>
-        r.prisonerCode.toLowerCase().includes(q) ||
-        r.firstName.toLowerCase().includes(q) ||
-        r.lastName.toLowerCase().includes(q)
+        (r.prisonerCode ?? '').toLowerCase().includes(q) ||
+        (r.firstName ?? '').toLowerCase().includes(q) ||
+        (r.lastName ?? '').toLowerCase().includes(q)
     )
   }
   if (filterStatus) {
@@ -127,11 +127,19 @@ export default function PrisonerIntakeList() {
 
   const COLUMNS: Column<PrisonerIntakeListItem>[] = [
     { key: 'id', label: '#', width: '60px' },
-    { key: 'prisonerCode', label: 'Code', width: '100px' },
+    {
+      key: 'prisonerCode',
+      label: 'Code',
+      width: '100px',
+      render: (val) => (typeof val === 'string' && val ? val : 'Pending'),
+    },
     {
       key: 'firstName',
       label: 'Prisoner',
-      render: (_, row) => `${row.firstName} ${row.lastName}`,
+      render: (_, row) =>
+        row.firstName || row.lastName
+          ? `${row.firstName ?? ''} ${row.lastName ?? ''}`
+          : 'Not created yet',
     },
     {
       key: 'intakeDate',
@@ -260,10 +268,11 @@ export default function PrisonerIntakeList() {
         }
       >
         <p className="delete-confirm-text">
-          Delete intake record for prisoner{' '}
-          <strong className="delete-confirm-text__emphasis">{deleteTarget?.prisonerCode}</strong> (
-          {deleteTarget?.firstName} {deleteTarget?.lastName})? This will also remove the prisoner
-          record.
+          Delete intake record{' '}
+          <strong className="delete-confirm-text__emphasis">
+            {deleteTarget?.prisonerCode ?? `#${deleteTarget?.id}`}
+          </strong>
+          ? This will also remove the linked prisoner record if one exists.
         </p>
       </Modal>
     </>

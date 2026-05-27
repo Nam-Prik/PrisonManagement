@@ -23,7 +23,6 @@ export interface ConfiscatedItemInput {
 }
 
 export interface CreatePrisonerIntakeDto {
-  prisonerId: number
   intakeDate: string
   initialHealthStatus: HealthStatus
   confiscatedItems: ConfiscatedItemInput[]
@@ -45,9 +44,9 @@ export interface ConfiscatedItemDetail {
 
 export interface PrisonerIntakeListItem {
   id: number
-  prisonerCode: string
-  firstName: string
-  lastName: string
+  prisonerCode: string | null
+  firstName: string | null
+  lastName: string | null
   intakeDate: string
   initialHealthStatus: string
   itemCount: number
@@ -55,10 +54,10 @@ export interface PrisonerIntakeListItem {
 
 export interface PrisonerIntakeDetail {
   id: number
-  prisonerId: number
-  prisonerCode: string
-  firstName: string
-  lastName: string
+  prisonerId: number | null
+  prisonerCode: string | null
+  firstName: string | null
+  lastName: string | null
   intakeDate: string
   initialHealthStatus: string
   mugshotImgKey: string | null

@@ -29,6 +29,7 @@ export interface CreatePrisonerDto {
 }
 
 export interface UpdatePrisonerDto {
+  prisonIntakeId?: number
   code?: string
   mugshotImgKey?: string
   evaluation?: string

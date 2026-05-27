@@ -1,23 +1,14 @@
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { getPrisonerOptions } from '../../api/prisoner.api'
 import { createPrisonerIntake } from '../../api/prisonerintake.api'
-import type { LovColumn } from '../../components/ui'
-import { Button, Card, FormGroup, Label, LovButton, PageLoader, Select } from '../../components/ui'
+import { Button, Card, FormGroup, Label, Select } from '../../components/ui'
 import Input from '../../components/ui/Form/Input'
 import { useToast } from '../../context/ToastContext'
-import type { PrisonerOption } from '../../types/dto/prisoner.dto'
 import { HEALTH_STATUSES } from '../../types/dto/prisonerintake.dto'
 import type { ConfiscatedItemDraft } from './ConfiscatedItemsLineItems'
 import ConfiscatedItemsLineItems from './ConfiscatedItemsLineItems'
 import '../maintenance/MaintenanceForm.css'
-
-const PRISONER_LOV_COLUMNS: LovColumn<PrisonerOption>[] = [
-  { key: 'code', label: 'Code', width: '80px' },
-  { key: 'firstName', label: 'First Name' },
-  { key: 'lastName', label: 'Last Name' },
-]
 
 const HEALTH_STATUS_OPTIONS = HEALTH_STATUSES.map((s) => ({ value: s, label: s }))
 
@@ -25,11 +16,6 @@ export default function PrisonerIntakeForm() {
   const navigate = useNavigate()
   const toast = useToast()
 
-  const [prisoners, setPrisoners] = useState<PrisonerOption[]>([])
-  const [loadingRef, setLoadingRef] = useState(true)
-
-  const [prisonerId, setPrisonerId] = useState<number>(0)
-  const [prisonerLabel, setPrisonerLabel] = useState('')
   const [intakeDate, setIntakeDate] = useState(new Date().toISOString().slice(0, 10))
   const [initialHealthStatus, setInitialHealthStatus] = useState('')
   const [confiscatedItems, setConfiscatedItems] = useState<ConfiscatedItemDraft[]>([])
@@ -37,20 +23,9 @@ export default function PrisonerIntakeForm() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    getPrisonerOptions()
-      .then(setPrisoners)
-      .catch(() => toast.error('Failed to load prisoner list'))
-      .finally(() => setLoadingRef(false))
-  }, [toast])
-
   const handleSubmit = async () => {
     setError(null)
 
-    if (!prisonerId) {
-      setError('Please select a prisoner.')
-      return
-    }
     if (!intakeDate) {
       setError('Intake date is required.')
       return
@@ -64,7 +39,6 @@ export default function PrisonerIntakeForm() {
     setSubmitting(true)
     try {
       await createPrisonerIntake({
-        prisonerId,
         intakeDate,
         initialHealthStatus: initialHealthStatus as (typeof HEALTH_STATUSES)[number],
         confiscatedItems: confiscatedItems.map(({ uid: _uid, ...rest }) => ({
@@ -81,8 +55,6 @@ export default function PrisonerIntakeForm() {
     }
   }
 
-  if (loadingRef) return <PageLoader />
-
   return (
     <>
       <Link to="/prisoner-intake" className="form-page-back">
@@ -92,7 +64,7 @@ export default function PrisonerIntakeForm() {
       <div className="page-header">
         <h1 className="page-header__title">New Prisoner Intake</h1>
         <p className="page-header__subtitle">
-          Record a new intake event for a registered prisoner.
+          Record a new intake event before creating the prisoner record.
         </p>
       </div>
 
@@ -101,22 +73,6 @@ export default function PrisonerIntakeForm() {
       <div className="form-page__section">
         <Card title="Intake Record">
           <div className="form-page__grid">
-            <FormGroup>
-              <Label required>Prisoner</Label>
-              <LovButton<PrisonerOption>
-                displayValue={prisonerLabel}
-                placeholder="Select prisoner…"
-                modalTitle="Select Prisoner"
-                columns={PRISONER_LOV_COLUMNS}
-                data={prisoners}
-                rowKey="id"
-                onSelect={(p) => {
-                  setPrisonerId(p.id)
-                  setPrisonerLabel(`[${p.code}] ${p.firstName} ${p.lastName}`)
-                }}
-              />
-            </FormGroup>
-
             <FormGroup>
               <Label required>Intake Date</Label>
               <Input

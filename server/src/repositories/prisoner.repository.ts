@@ -50,6 +50,10 @@ export const prisonerRepository = {
     const fields: string[] = []
     const values: unknown[] = []
     let i = 1
+    if (dto.prisonIntakeId !== undefined) {
+      fields.push(`prison_intake_id = $${i++}`)
+      values.push(dto.prisonIntakeId)
+    }
     if (dto.code !== undefined) {
       fields.push(`code = $${i++}`)
       values.push(dto.code)

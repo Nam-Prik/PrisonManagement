@@ -12,6 +12,7 @@ export const CreatePrisonerSchema = z.object({
 export type CreatePrisonerDto = z.infer<typeof CreatePrisonerSchema>
 
 export const UpdatePrisonerSchema = z.object({
+  prisonIntakeId: z.number().int().positive('Prison intake ID is required').optional(),
   code: z.string().min(1).optional(),
   mugshotImgKey: z.string().optional(),
   evaluation: z.string().max(255).optional(),

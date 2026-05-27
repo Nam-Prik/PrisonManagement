@@ -1,8 +1,8 @@
 export interface PrisonerIntakeListRow {
   id: number
-  prisoner_code: string
-  first_name: string
-  last_name: string
+  prisoner_code: string | null
+  first_name: string | null
+  last_name: string | null
   intake_date: Date
   initial_health_status: string
   item_count: number
@@ -10,10 +10,10 @@ export interface PrisonerIntakeListRow {
 
 export interface PrisonerIntakeDetailRow {
   id: number
-  prisoner_id: number
-  prisoner_code: string
-  first_name: string
-  last_name: string
+  prisoner_id: number | null
+  prisoner_code: string | null
+  first_name: string | null
+  last_name: string | null
   intake_date: Date
   initial_health_status: string
   mugshot_img_key: string | null
@@ -28,9 +28,9 @@ export interface ConfiscatedItemRow {
 
 export interface PrisonerIntakeListItem {
   id: number
-  prisonerCode: string
-  firstName: string
-  lastName: string
+  prisonerCode: string | null
+  firstName: string | null
+  lastName: string | null
   intakeDate: string
   initialHealthStatus: string
   itemCount: number
@@ -45,10 +45,10 @@ export interface ConfiscatedItemDetail {
 
 export interface PrisonerIntakeDetail {
   id: number
-  prisonerId: number
-  prisonerCode: string
-  firstName: string
-  lastName: string
+  prisonerId: number | null
+  prisonerCode: string | null
+  firstName: string | null
+  lastName: string | null
   intakeDate: string
   initialHealthStatus: string
   mugshotImgKey: string | null

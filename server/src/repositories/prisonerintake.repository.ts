@@ -24,8 +24,8 @@ export const prisonerIntakeRepository = {
         pi.initial_health_status,
         (SELECT COUNT(*)::int FROM ConfiscatedItem ci WHERE ci.PrisonerIntake_id = pi.id) AS item_count
       FROM PrisonerIntake pi
-      JOIN Prisoner pr ON pr.prison_intake_id = pi.id
-      JOIN Person pe   ON pe.id = pr.person_id
+      LEFT JOIN Prisoner pr ON pr.prison_intake_id = pi.id
+      LEFT JOIN Person pe   ON pe.id = pr.person_id
       ORDER BY pi.intake_date DESC
     `)
     return result.rows.map(toPrisonerIntakeListItem)
@@ -43,8 +43,8 @@ export const prisonerIntakeRepository = {
          pi.initial_health_status,
          pr.mugshot_img_key
        FROM PrisonerIntake pi
-       JOIN Prisoner pr ON pr.prison_intake_id = pi.id
-       JOIN Person pe   ON pe.id = pr.person_id
+       LEFT JOIN Prisoner pr ON pr.prison_intake_id = pi.id
+       LEFT JOIN Person pe   ON pe.id = pr.person_id
        WHERE pi.id = $1`,
       [id]
     )
@@ -69,26 +69,12 @@ export const prisonerIntakeRepository = {
     try {
       await client.query('BEGIN')
 
-      const prisonerCheck = await client.query<{ id: number }>(
-        'SELECT id FROM Prisoner WHERE id = $1',
-        [dto.prisonerId]
-      )
-      if (!prisonerCheck.rows[0]) {
-        await client.query('ROLLBACK')
-        return null
-      }
-
       const intakeResult = await client.query<{ id: number }>(
         `INSERT INTO PrisonerIntake (intake_date, initial_health_status)
          VALUES ($1, $2) RETURNING id`,
         [new Date(dto.intakeDate), dto.initialHealthStatus]
       )
       const intakeId = intakeResult.rows[0].id
-
-      await client.query(`UPDATE Prisoner SET prison_intake_id = $1 WHERE id = $2`, [
-        intakeId,
-        dto.prisonerId,
-      ])
 
       for (const item of dto.confiscatedItems) {
         await client.query(
@@ -174,11 +160,10 @@ export const prisonerIntakeRepository = {
     try {
       await client.query('BEGIN')
 
-      const check = await client.query<{ id: number; prisoner_id: number; person_id: number }>(
-        `SELECT pi.id, pr.id AS prisoner_id, pr.person_id
-         FROM PrisonerIntake pi
-         JOIN Prisoner pr ON pr.prison_intake_id = pi.id
-         WHERE pi.id = $1`,
+      const check = await client.query<{ id: number }>(
+        `SELECT id
+         FROM PrisonerIntake
+         WHERE id = $1`,
         [id]
       )
       if (!check.rows[0]) {
@@ -186,8 +171,7 @@ export const prisonerIntakeRepository = {
         return false
       }
       await client.query('DELETE FROM ConfiscatedItem WHERE PrisonerIntake_id = $1', [id])
-      await client.query('DELETE FROM Prisoner WHERE id = $1', [check.rows[0].prisoner_id])
-      await client.query('DELETE FROM Person WHERE id = $1', [check.rows[0].person_id])
+      await client.query('DELETE FROM Prisoner WHERE prison_intake_id = $1', [id])
       await client.query('DELETE FROM PrisonerIntake WHERE id = $1', [id])
 
       await client.query('COMMIT')

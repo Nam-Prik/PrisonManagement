@@ -5,14 +5,10 @@ import { createOfficer, getOfficerById, updateOfficer } from '../../api/officer.
 import { getPersons } from '../../api/person.api'
 import { Button, Card, FormGroup, Input, Label, PageLoader, Select } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import { GENDERS, RANKS } from '../../types/dto/officer.dto'
+import { type GENDERS, RANKS } from '../../types/dto/officer.dto'
 import type { Person } from '../../types/dto/person.dto'
 
 const RANK_OPTIONS = RANKS.map((r) => ({ value: r, label: r }))
-const GENDER_OPTIONS = GENDERS.map((g) => ({
-  value: g,
-  label: g === 'M' ? 'Male' : g === 'F' ? 'Female' : g,
-}))
 
 export default function OfficerForm() {
   const { id } = useParams<{ id: string }>()
@@ -49,6 +45,8 @@ export default function OfficerForm() {
     value: String(p.id),
     label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
   }))
+  const selectedPerson = persons.find((p) => String(p.id) === personId)
+  const genderValue = selectedPerson?.gender ?? gender
 
   const handleSubmit = async () => {
     if (!personId) {
@@ -63,7 +61,7 @@ export default function OfficerForm() {
       toast.error('Rank is required')
       return
     }
-    if (!gender) {
+    if (!genderValue) {
       toast.error('Gender is required')
       return
     }
@@ -73,7 +71,7 @@ export default function OfficerForm() {
         personId: Number(personId),
         code: Number(code),
         rank: rank as (typeof RANKS)[number],
-        gender: gender as (typeof GENDERS)[number],
+        gender: genderValue as (typeof GENDERS)[number],
       }
       if (isEdit) {
         await updateOfficer(Number(id), dto)
@@ -111,7 +109,11 @@ export default function OfficerForm() {
               placeholder="Select person"
               options={personOptions}
               value={personId}
-              onChange={(e) => setPersonId(e.target.value)}
+              onChange={(e) => {
+                const nextPersonId = e.target.value
+                setPersonId(nextPersonId)
+                setGender(persons.find((p) => String(p.id) === nextPersonId)?.gender ?? '')
+              }}
             />
           </FormGroup>
           <FormGroup>
@@ -142,13 +144,7 @@ export default function OfficerForm() {
             <Label htmlFor="gender" required>
               Gender
             </Label>
-            <Select
-              id="gender"
-              placeholder="Select gender"
-              options={GENDER_OPTIONS}
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-            />
+            <Input id="gender" value={genderValue} disabled />
           </FormGroup>
         </div>
       </Card>

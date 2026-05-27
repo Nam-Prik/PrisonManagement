@@ -2,6 +2,7 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { createMaintainer, getMaintainerById, updateMaintainer } from '../../api/maintainer.api'
+import { getPersons } from '../../api/person.api'
 import {
   Button,
   Card,
@@ -13,33 +14,11 @@ import {
   Textarea,
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import {
-  BLOOD_TYPES,
-  GENDERS,
-  MAINTENANCE_SKILLS,
-  SPECIALIZATIONS,
-} from '../../types/dto/maintainer.dto'
+import { MAINTENANCE_SKILLS, SPECIALIZATIONS } from '../../types/dto/maintainer.dto'
+import type { Person } from '../../types/dto/person.dto'
 
 const SKILL_OPTIONS = MAINTENANCE_SKILLS.map((s) => ({ value: s, label: s }))
 const SPEC_OPTIONS = SPECIALIZATIONS.map((s) => ({ value: s, label: s }))
-const GENDER_OPTIONS = GENDERS.map((g) => ({
-  value: g,
-  label: g === 'M' ? 'Male' : g === 'F' ? 'Female' : g,
-}))
-const BLOOD_OPTIONS = BLOOD_TYPES.map((b) => ({ value: b, label: b }))
-
-function calcAge(dob: string): string {
-  if (!dob) return ''
-  const today = new Date()
-  const birth = new Date(dob)
-  let age = today.getFullYear() - birth.getFullYear()
-  if (
-    today.getMonth() < birth.getMonth() ||
-    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-  )
-    age--
-  return String(age)
-}
 
 export default function MaintainerForm() {
   const { id } = useParams<{ id: string }>()
@@ -47,80 +26,43 @@ export default function MaintainerForm() {
   const toast = useToast()
   const isEdit = id !== undefined
 
-  const [loading, setLoading] = useState(isEdit)
+  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [persons, setPersons] = useState<Person[]>([])
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [identificationNo, setIdentificationNo] = useState('')
-  const [gender, setGender] = useState('')
-  const [address, setAddress] = useState('')
-  const [contactNo, setContactNo] = useState('')
-  const [age, setAge] = useState('')
-  const [dateOfBirth, setDateOfBirth] = useState('')
-  const [bloodType, setBloodType] = useState('')
+  const [personId, setPersonId] = useState('')
   const [maintenanceSkill, setMaintenanceSkill] = useState('')
   const [skillDescription, setSkillDescription] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [specialization, setSpecialization] = useState('')
 
   useEffect(() => {
-    if (!isEdit) return
-    getMaintainerById(Number(id))
-      .then((m) => {
-        setFirstName(m.firstName)
-        setLastName(m.lastName)
-        setIdentificationNo(m.identificationNo ?? '')
-        setGender(m.gender)
-        setAddress(m.address)
-        setContactNo(m.contactNo)
-        setAge(String(m.age))
-        setDateOfBirth(
-          typeof m.dateOfBirth === 'string'
-            ? m.dateOfBirth.slice(0, 10)
-            : new Date(m.dateOfBirth).toISOString().slice(0, 10)
-        )
-        setBloodType(m.bloodType)
-        setMaintenanceSkill(m.maintenanceSkill)
-        setSkillDescription(m.skillDescription ?? '')
-        setCompanyName(m.companyName)
-        setSpecialization(m.specialization)
-      })
+    const loads: Promise<unknown>[] = [getPersons().then(setPersons)]
+    if (isEdit) {
+      loads.push(
+        getMaintainerById(Number(id)).then((m) => {
+          setPersonId(String(m.personId))
+          setMaintenanceSkill(m.maintenanceSkill)
+          setSkillDescription(m.skillDescription ?? '')
+          setCompanyName(m.companyName)
+          setSpecialization(m.specialization)
+        })
+      )
+    }
+    Promise.all(loads)
       .catch((err) => toast.error(err instanceof Error ? err.message : 'Failed to load'))
       .finally(() => setLoading(false))
   }, [id, isEdit, toast])
 
+  const selectedPerson = persons.find((p) => String(p.id) === personId)
+  const personOptions = persons.map((p) => ({
+    value: String(p.id),
+    label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
+  }))
+
   const handleSubmit = async () => {
-    if (!firstName.trim()) {
-      toast.error('First name is required')
-      return
-    }
-    if (!lastName.trim()) {
-      toast.error('Last name is required')
-      return
-    }
-    if (!gender) {
-      toast.error('Gender is required')
-      return
-    }
-    if (!address.trim()) {
-      toast.error('Address is required')
-      return
-    }
-    if (!contactNo.trim()) {
-      toast.error('Contact number is required')
-      return
-    }
-    if (!age || Number(age) <= 0) {
-      toast.error('Valid age is required')
-      return
-    }
-    if (!dateOfBirth) {
-      toast.error('Date of birth is required')
-      return
-    }
-    if (!bloodType) {
-      toast.error('Blood type is required')
+    if (!personId) {
+      toast.error('Person is required')
       return
     }
     if (!maintenanceSkill) {
@@ -138,15 +80,7 @@ export default function MaintainerForm() {
     setSubmitting(true)
     try {
       const dto = {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        identificationNo: identificationNo.trim() || undefined,
-        gender: gender as (typeof GENDERS)[number],
-        address: address.trim(),
-        contactNo: contactNo.trim(),
-        age: Number(age),
-        dateOfBirth,
-        bloodType: bloodType as (typeof BLOOD_TYPES)[number],
+        personId: Number(personId),
         maintenanceSkill: maintenanceSkill as (typeof MAINTENANCE_SKILLS)[number],
         skillDescription: skillDescription.trim() || undefined,
         companyName: companyName.trim(),
@@ -181,109 +115,45 @@ export default function MaintainerForm() {
         <Card title="Person Information">
           <div className="form-page__grid">
             <FormGroup>
-              <Label htmlFor="fn" required>
-                First Name
-              </Label>
-              <Input
-                id="fn"
-                placeholder="First name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label htmlFor="ln" required>
-                Last Name
-              </Label>
-              <Input
-                id="ln"
-                placeholder="Last name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label htmlFor="idno">ID No.</Label>
-              <Input
-                id="idno"
-                placeholder="ID number"
-                value={identificationNo}
-                onChange={(e) => setIdentificationNo(e.target.value)}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label htmlFor="gen" required>
-                Gender
+              <Label htmlFor="person" required>
+                Person
               </Label>
               <Select
-                id="gen"
-                placeholder="Select gender"
-                options={GENDER_OPTIONS}
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                id="person"
+                placeholder="Select person"
+                options={personOptions}
+                value={personId}
+                onChange={(e) => setPersonId(e.target.value)}
               />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="dob" required>
-                Date of Birth
-              </Label>
-              <Input
-                id="dob"
-                type="date"
-                value={dateOfBirth}
-                onChange={(e) => {
-                  setDateOfBirth(e.target.value)
-                  setAge(calcAge(e.target.value))
-                }}
-              />
+              <Label htmlFor="gender">Gender</Label>
+              <Input id="gender" value={selectedPerson?.gender ?? ''} disabled />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="age" required>
-                Age
-              </Label>
+              <Label htmlFor="dob">Date Of Birth</Label>
+              <Input id="dob" value={selectedPerson?.dateOfBirth?.slice(0, 10) ?? ''} disabled />
+            </FormGroup>
+            <FormGroup>
+              <Label htmlFor="age">Age</Label>
               <Input
                 id="age"
-                type="number"
-                min="1"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
+                value={selectedPerson?.age != null ? String(selectedPerson.age) : ''}
+                disabled
               />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="bt" required>
-                Blood Type
-              </Label>
-              <Select
-                id="bt"
-                placeholder="Select blood type"
-                options={BLOOD_OPTIONS}
-                value={bloodType}
-                onChange={(e) => setBloodType(e.target.value)}
-              />
+              <Label htmlFor="bt">Blood Type</Label>
+              <Input id="bt" value={selectedPerson?.bloodType ?? ''} disabled />
             </FormGroup>
             <FormGroup>
-              <Label htmlFor="cn" required>
-                Contact No.
-              </Label>
-              <Input
-                id="cn"
-                placeholder="Contact number"
-                value={contactNo}
-                onChange={(e) => setContactNo(e.target.value)}
-              />
+              <Label htmlFor="cn">Contact No.</Label>
+              <Input id="cn" value={selectedPerson?.contactNo ?? ''} disabled />
             </FormGroup>
           </div>
           <FormGroup>
-            <Label htmlFor="addr" required>
-              Address
-            </Label>
-            <Textarea
-              id="addr"
-              placeholder="Address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              rows={2}
-            />
+            <Label htmlFor="addr">Address</Label>
+            <Textarea id="addr" value={selectedPerson?.address ?? ''} rows={2} disabled />
           </FormGroup>
         </Card>
       </div>

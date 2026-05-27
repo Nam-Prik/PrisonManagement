@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { getPersons } from '../../api/person.api'
 import { createPrisoner, getPrisonerById, updatePrisoner } from '../../api/prisoner.api'
-import { uploadMugshot } from '../../api/prisonerintake.api'
+import { getPrisonerIntakes, uploadMugshot } from '../../api/prisonerintake.api'
 import {
   Button,
   Card,
@@ -16,6 +16,7 @@ import {
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { Person } from '../../types/dto/person.dto'
+import type { PrisonerIntakeListItem } from '../../types/dto/prisonerintake.dto'
 import '../maintenance/MaintenanceForm.css'
 import './PrisonerIntakeForm.css'
 
@@ -29,6 +30,7 @@ export default function PrisonerForm() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [persons, setPersons] = useState<Person[]>([])
+  const [intakes, setIntakes] = useState<PrisonerIntakeListItem[]>([])
 
   const [personId, setPersonId] = useState('')
   const [prisonIntakeId, setPrisonIntakeId] = useState('')
@@ -47,7 +49,10 @@ export default function PrisonerForm() {
   }, [mugshotPreview])
 
   useEffect(() => {
-    const loads: Promise<unknown>[] = [getPersons().then(setPersons)]
+    const loads: Promise<unknown>[] = [
+      getPersons().then(setPersons),
+      getPrisonerIntakes().then(setIntakes),
+    ]
     if (isEdit) {
       loads.push(
         getPrisonerById(Number(id)).then((p) => {
@@ -94,7 +99,7 @@ export default function PrisonerForm() {
       toast.error('Person is required')
       return
     }
-    if (!isEdit && !prisonIntakeId) {
+    if (!prisonIntakeId) {
       toast.error('Prison intake ID is required')
       return
     }
@@ -116,6 +121,7 @@ export default function PrisonerForm() {
       }
       if (isEdit) {
         await updatePrisoner(Number(id), {
+          prisonIntakeId: Number(prisonIntakeId),
           code: code.trim(),
           mugshotImgKey: imgKey || undefined,
           evaluation: evaluation.trim() || undefined,
@@ -145,6 +151,20 @@ export default function PrisonerForm() {
     value: String(p.id),
     label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
   }))
+  const intakeOptions = intakes.map((intake) => {
+    const prisonerName =
+      intake.firstName || intake.lastName
+        ? ` - ${`${intake.firstName ?? ''} ${intake.lastName ?? ''}`.trim()}`
+        : ''
+    const prisonerCode = intake.prisonerCode ? ` - ${intake.prisonerCode}` : ''
+
+    return {
+      value: String(intake.id),
+      label: `[#${intake.id}] ${new Date(intake.intakeDate).toLocaleDateString('en-GB')} - ${
+        intake.initialHealthStatus
+      }${prisonerCode}${prisonerName}`,
+    }
+  })
 
   if (loading) return <PageLoader />
 
@@ -210,33 +230,31 @@ export default function PrisonerForm() {
         <Card title="Prisoner Details">
           <div className="form-page__grid">
             {!isEdit && (
-              <>
-                <FormGroup>
-                  <Label htmlFor="person" required>
-                    Person
-                  </Label>
-                  <Select
-                    id="person"
-                    placeholder="Select person"
-                    options={personOptions}
-                    value={personId}
-                    onChange={(e) => setPersonId(e.target.value)}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <Label htmlFor="intake-id" required>
-                    Prison Intake ID
-                  </Label>
-                  <Input
-                    id="intake-id"
-                    type="number"
-                    placeholder="Prison intake record ID"
-                    value={prisonIntakeId}
-                    onChange={(e) => setPrisonIntakeId(e.target.value)}
-                  />
-                </FormGroup>
-              </>
+              <FormGroup>
+                <Label htmlFor="person" required>
+                  Person
+                </Label>
+                <Select
+                  id="person"
+                  placeholder="Select person"
+                  options={personOptions}
+                  value={personId}
+                  onChange={(e) => setPersonId(e.target.value)}
+                />
+              </FormGroup>
             )}
+            <FormGroup>
+              <Label htmlFor="intake-id" required>
+                Prison Intake
+              </Label>
+              <Select
+                id="intake-id"
+                placeholder="Select intake record"
+                options={intakeOptions}
+                value={prisonIntakeId}
+                onChange={(e) => setPrisonIntakeId(e.target.value)}
+              />
+            </FormGroup>
             <FormGroup>
               <Label htmlFor="code" required>
                 Code

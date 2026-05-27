@@ -17,7 +17,6 @@ const ConfiscatedItemSchema = z.object({
 })
 
 export const CreatePrisonerIntakeSchema = z.object({
-  prisonerId: z.number().int().positive('Prisoner is required'),
   intakeDate: z.string().min(1, 'Intake date is required'),
   initialHealthStatus: HEALTH_STATUS_ENUM,
   confiscatedItems: z.array(ConfiscatedItemSchema).default([]),

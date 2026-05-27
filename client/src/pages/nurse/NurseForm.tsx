@@ -5,13 +5,8 @@ import { createNurse, getNurseById, updateNurse } from '../../api/nurse.api'
 import { getPersons } from '../../api/person.api'
 import { Button, Card, FormGroup, Input, Label, PageLoader, Select } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import { GENDERS } from '../../types/dto/nurse.dto'
+import type { GENDERS } from '../../types/dto/nurse.dto'
 import type { Person } from '../../types/dto/person.dto'
-
-const GENDER_OPTIONS = GENDERS.map((g) => ({
-  value: g,
-  label: g === 'M' ? 'Male' : g === 'F' ? 'Female' : g,
-}))
 
 export default function NurseForm() {
   const { id } = useParams<{ id: string }>()
@@ -46,6 +41,8 @@ export default function NurseForm() {
     value: String(p.id),
     label: `[#${p.id}] ${p.firstName} ${p.lastName}`,
   }))
+  const selectedPerson = persons.find((p) => String(p.id) === personId)
+  const genderValue = selectedPerson?.gender ?? gender
 
   const handleSubmit = async () => {
     if (!personId) {
@@ -56,7 +53,7 @@ export default function NurseForm() {
       toast.error('Code is required')
       return
     }
-    if (!gender) {
+    if (!genderValue) {
       toast.error('Gender is required')
       return
     }
@@ -65,7 +62,7 @@ export default function NurseForm() {
       const dto = {
         personId: Number(personId),
         code: code.trim(),
-        gender: gender as (typeof GENDERS)[number],
+        gender: genderValue as (typeof GENDERS)[number],
       }
       if (isEdit) {
         await updateNurse(Number(id), dto)
@@ -103,7 +100,11 @@ export default function NurseForm() {
               placeholder="Select person"
               options={personOptions}
               value={personId}
-              onChange={(e) => setPersonId(e.target.value)}
+              onChange={(e) => {
+                const nextPersonId = e.target.value
+                setPersonId(nextPersonId)
+                setGender(persons.find((p) => String(p.id) === nextPersonId)?.gender ?? '')
+              }}
             />
           </FormGroup>
           <FormGroup>
@@ -121,13 +122,7 @@ export default function NurseForm() {
             <Label htmlFor="gender" required>
               Gender
             </Label>
-            <Select
-              id="gender"
-              placeholder="Select gender"
-              options={GENDER_OPTIONS}
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-            />
+            <Input id="gender" value={genderValue} disabled />
           </FormGroup>
         </div>
       </Card>
