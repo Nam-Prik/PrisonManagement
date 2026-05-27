@@ -2,12 +2,31 @@ import pool from '../db/pool.js'
 import type { CreateTreatmentDto, UpdateTreatmentDto } from '../dto/treatment.dto.js'
 import type {
   NurseOptionRow,
+  Prescription,
+  PrescriptionRow,
   TreatmentDetail,
   TreatmentDetailRow,
   TreatmentListItem,
   TreatmentListRow,
 } from '../models/treatment.model.js'
-import { toTreatmentDetail, toTreatmentListItem } from '../models/treatment.model.js'
+import {
+  toPrescription,
+  toTreatmentDetail,
+  toTreatmentListItem,
+} from '../models/treatment.model.js'
+
+async function fetchPrescriptions(treatmentId: number): Promise<Prescription[]> {
+  const result = await pool.query<PrescriptionRow>(
+    `SELECT mp.id, mp.medicine_id, m.name AS medicine_name, m.code AS medicine_code,
+            mp.dosage, mp.frequency, mp.duration
+     FROM medication_prescription mp
+     JOIN medicine m ON m.id = mp.medicine_id
+     WHERE mp.treatment_id = $1
+     ORDER BY mp.id`,
+    [treatmentId]
+  )
+  return result.rows.map(toPrescription)
+}
 
 export const treatmentRepository = {
   async findById(id: number): Promise<TreatmentDetail | null> {
@@ -19,7 +38,8 @@ export const treatmentRepository = {
     )
 
     if (!result.rows[0]) return null
-    return toTreatmentDetail(result.rows[0])
+    const prescriptions = await fetchPrescriptions(id)
+    return toTreatmentDetail(result.rows[0], prescriptions)
   },
 
   async findNurses(): Promise<NurseOptionRow[]> {
@@ -48,8 +68,20 @@ export const treatmentRepository = {
       )
 
       const createdId = result.rows[0]?.id
+      if (!createdId) {
+        await client.query('ROLLBACK')
+        return null
+      }
+
+      for (const p of dto.prescriptions ?? []) {
+        await client.query(
+          `INSERT INTO medication_prescription (treatment_id, medicine_id, dosage, frequency, duration)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [createdId, p.medicineId, p.dosage, p.frequency, p.duration]
+        )
+      }
+
       await client.query('COMMIT')
-      if (!createdId) return null
       return this.findById(createdId)
     } catch (error) {
       await client.query('ROLLBACK')
@@ -108,6 +140,15 @@ export const treatmentRepository = {
          WHERE id = $5`,
         [dto.prisonerId, dto.nurseId, dto.description || null, dto.diagnoseDate, id]
       )
+
+      await client.query('DELETE FROM medication_prescription WHERE treatment_id = $1', [id])
+      for (const p of dto.prescriptions ?? []) {
+        await client.query(
+          `INSERT INTO medication_prescription (treatment_id, medicine_id, dosage, frequency, duration)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, p.medicineId, p.dosage, p.frequency, p.duration]
+        )
+      }
 
       await client.query('COMMIT')
       return this.findById(id)

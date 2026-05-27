@@ -1,10 +1,4 @@
-import {
-  BarChartIcon,
-  ChevronRightIcon,
-  FileTextIcon,
-  ListBulletIcon,
-  LockClosedIcon,
-} from '@radix-ui/react-icons'
+import { BarChartIcon, ChevronRightIcon, FileTextIcon, ListBulletIcon } from '@radix-ui/react-icons'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
@@ -131,13 +125,8 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
-        <div className="sidebar__brand-icon">
-          <LockClosedIcon width={20} height={20} />
-        </div>
-        <div className="sidebar__brand-text">
-          <span className="sidebar__brand-name">ZedYor</span>
-          <span className="sidebar__brand-sub">Prison Management</span>
-        </div>
+        <img src="/logo.png" alt="Logo" className="sidebar__brand-icon" />
+        <span className="sidebar__brand-name">Prison Management System</span>
       </div>
 
       <nav className="sidebar__nav" aria-label="Main navigation">
@@ -224,10 +213,6 @@ export default function Sidebar() {
           )
         })}
       </nav>
-
-      <div className="sidebar__footer">
-        <p className="sidebar__footer-text">© 2026 ZedYor</p>
-      </div>
     </aside>
   )
 }

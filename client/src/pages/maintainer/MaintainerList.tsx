@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-ico
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deleteMaintainer, getMaintainerOptions } from '../../api/maintainer.api'
-import type { Column } from '../../components/ui'
+import type { Column, SortDirection } from '../../components/ui'
 import { Button, Card, Input, Modal, PageLoader, Table } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { MaintainerOption } from '../../types/dto/maintainer.dto'
@@ -13,6 +13,8 @@ export default function MaintainerList() {
   const [rows, setRows] = useState<MaintainerOption[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string>('')
+  const [sortDir, setSortDir] = useState<SortDirection>(null)
   const [deleteTarget, setDeleteTarget] = useState<MaintainerOption | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -32,7 +34,16 @@ export default function MaintainerList() {
     void load()
   }, [load])
 
-  const displayed = search.trim()
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  let displayed = search.trim()
     ? rows.filter((r) => {
         const q = search.toLowerCase()
         return (
@@ -42,6 +53,17 @@ export default function MaintainerList() {
         )
       })
     : rows
+  if (sortKey && sortDir) {
+    displayed = [...displayed].sort((a, b) => {
+      const av = (a as unknown as Record<string, unknown>)[sortKey]
+      const bv = (b as unknown as Record<string, unknown>)[sortKey]
+      if (av == null && bv == null) return 0
+      if (av == null) return 1
+      if (bv == null) return -1
+      const result = av < bv ? -1 : av > bv ? 1 : 0
+      return sortDir === 'asc' ? result : -result
+    })
+  }
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
@@ -64,15 +86,16 @@ export default function MaintainerList() {
     {
       key: 'firstName',
       label: 'Name',
+      sortable: true,
       render: (_, row) => (
         <span>
           {row.firstName} {row.lastName}
         </span>
       ),
     },
-    { key: 'maintenanceSkill', label: 'Skill' },
-    { key: 'companyName', label: 'Company' },
-    { key: 'specialization', label: 'Specialization' },
+    { key: 'maintenanceSkill', label: 'Skill', sortable: true },
+    { key: 'companyName', label: 'Company', sortable: true },
+    { key: 'specialization', label: 'Specialization', sortable: true },
     {
       key: 'actions',
       label: '',
@@ -137,6 +160,9 @@ export default function MaintainerList() {
           rowKey="id"
           loading={loading}
           emptyMessage="No maintainers found."
+          sortKey={sortKey || undefined}
+          sortDirection={sortDir}
+          onSort={handleSort}
         />
       </Card>
       <Modal

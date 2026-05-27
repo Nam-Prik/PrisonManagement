@@ -130,3 +130,31 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
 }
+
+.cell-muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.cell-actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Ghost delete button used in all list action columns */
+.btn-danger-ghost {
+  color: var(--color-danger);
+}
+
+/* Delete confirmation modal text */
+.delete-confirm-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.delete-confirm-text strong {
+  color: var(--color-text-primary);
+}

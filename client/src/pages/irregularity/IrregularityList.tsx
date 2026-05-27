@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-ico
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deleteIrregularity, getIrregularities } from '../../api/irregularity.api'
-import type { Column } from '../../components/ui'
+import type { Column, SortDirection } from '../../components/ui'
 import { Badge, Button, Card, Input, Modal, PageLoader, Table } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { Irregularity, Severity } from '../../types/dto/irregularity.dto'
@@ -30,6 +30,8 @@ export default function IrregularityList() {
   const [rows, setRows] = useState<Irregularity[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string>('')
+  const [sortDir, setSortDir] = useState<SortDirection>(null)
   const [deleteTarget, setDeleteTarget] = useState<Irregularity | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -49,13 +51,33 @@ export default function IrregularityList() {
     void load()
   }, [load])
 
-  const displayed = search.trim()
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  let displayed = search.trim()
     ? rows.filter(
         (r) =>
           r.type.toLowerCase().includes(search.toLowerCase()) ||
           (r.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
       )
     : rows
+  if (sortKey && sortDir) {
+    displayed = [...displayed].sort((a, b) => {
+      const av = (a as unknown as Record<string, unknown>)[sortKey]
+      const bv = (b as unknown as Record<string, unknown>)[sortKey]
+      if (av == null && bv == null) return 0
+      if (av == null) return 1
+      if (bv == null) return -1
+      const result = av < bv ? -1 : av > bv ? 1 : 0
+      return sortDir === 'asc' ? result : -result
+    })
+  }
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
@@ -75,11 +97,12 @@ export default function IrregularityList() {
 
   const COLUMNS: Column<Irregularity>[] = [
     { key: 'id', label: '#', width: '56px' },
-    { key: 'type', label: 'Type' },
+    { key: 'type', label: 'Type', sortable: true },
     {
       key: 'severity',
       label: 'Severity',
       width: '110px',
+      sortable: true,
       render: (v) => (
         <Badge variant={severityVariant(v as Severity)} dot>
           {v as string}
@@ -155,6 +178,9 @@ export default function IrregularityList() {
           rowKey="id"
           loading={loading}
           emptyMessage="No irregularities found."
+          sortKey={sortKey || undefined}
+          sortDirection={sortDir}
+          onSort={handleSort}
         />
       </Card>
       <Modal

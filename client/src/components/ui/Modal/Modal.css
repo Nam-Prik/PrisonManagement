@@ -94,14 +94,11 @@
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
+  transition: color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .modal__close:hover {
-  background-color: var(--color-bg);
   color: var(--color-text-primary);
 }
 

@@ -59,7 +59,7 @@
 
 .table__body .table__tr {
   border-bottom: 1px solid var(--color-border);
-  transition: background-color var(--transition-fast);
+  transition: border-color var(--transition-fast);
 }
 
 .table__body .table__tr:last-child {
@@ -67,7 +67,7 @@
 }
 
 .table__body .table__tr:hover {
-  background-color: var(--color-primary-bg);
+  border-bottom: 1px solid var(--color-primary);
 }
 
 .table__td {

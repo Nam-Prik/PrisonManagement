@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-ico
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deletePrisoner, getPrisonerOptions } from '../../api/prisoner.api'
-import type { Column } from '../../components/ui'
+import type { Column, SortDirection } from '../../components/ui'
 import { Button, Card, Input, Modal, PageLoader, Table } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { PrisonerOption } from '../../types/dto/prisoner.dto'
@@ -13,6 +13,8 @@ export default function PrisonerList() {
   const [rows, setRows] = useState<PrisonerOption[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string>('')
+  const [sortDir, setSortDir] = useState<SortDirection>(null)
   const [deleteTarget, setDeleteTarget] = useState<PrisonerOption | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -32,7 +34,16 @@ export default function PrisonerList() {
     void load()
   }, [load])
 
-  const displayed = search.trim()
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  let displayed = search.trim()
     ? rows.filter((r) => {
         const q = search.toLowerCase()
         return (
@@ -42,6 +53,17 @@ export default function PrisonerList() {
         )
       })
     : rows
+  if (sortKey && sortDir) {
+    displayed = [...displayed].sort((a, b) => {
+      const av = (a as unknown as Record<string, unknown>)[sortKey]
+      const bv = (b as unknown as Record<string, unknown>)[sortKey]
+      if (av == null && bv == null) return 0
+      if (av == null) return 1
+      if (bv == null) return -1
+      const result = av < bv ? -1 : av > bv ? 1 : 0
+      return sortDir === 'asc' ? result : -result
+    })
+  }
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
@@ -61,10 +83,11 @@ export default function PrisonerList() {
 
   const COLUMNS: Column<PrisonerOption>[] = [
     { key: 'id', label: '#', width: '56px' },
-    { key: 'code', label: 'Code', width: '100px' },
+    { key: 'code', label: 'Code', width: '100px', sortable: true },
     {
       key: 'firstName',
       label: 'Name',
+      sortable: true,
       render: (_, row) => (
         <span>
           {row.firstName} {row.lastName}
@@ -75,6 +98,7 @@ export default function PrisonerList() {
       key: 'evaluationScore',
       label: 'Eval. Score',
       width: '110px',
+      sortable: true,
       render: (v) => <span>{v != null ? String(v) : '—'}</span>,
     },
     {
@@ -141,6 +165,9 @@ export default function PrisonerList() {
           rowKey="id"
           loading={loading}
           emptyMessage="No prisoners found."
+          sortKey={sortKey || undefined}
+          sortDirection={sortDir}
+          onSort={handleSort}
         />
       </Card>
       <Modal

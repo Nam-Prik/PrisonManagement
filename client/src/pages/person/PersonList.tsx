@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-ico
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { deletePerson, getPersons } from '../../api/person.api'
-import type { Column } from '../../components/ui'
+import type { Column, SortDirection } from '../../components/ui'
 import { Button, Card, Input, Modal, PageLoader, Table } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
 import type { Person } from '../../types/dto/person.dto'
@@ -14,6 +14,8 @@ export default function PersonList() {
   const [rows, setRows] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<string>('')
+  const [sortDir, setSortDir] = useState<SortDirection>(null)
   const [deleteTarget, setDeleteTarget] = useState<Person | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -33,7 +35,16 @@ export default function PersonList() {
     void load()
   }, [load])
 
-  const displayed = search.trim()
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : d === 'desc' ? null : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
+
+  let displayed = search.trim()
     ? rows.filter((r) => {
         const q = search.toLowerCase()
         return (
@@ -43,6 +54,17 @@ export default function PersonList() {
         )
       })
     : rows
+  if (sortKey && sortDir) {
+    displayed = [...displayed].sort((a, b) => {
+      const av = (a as unknown as Record<string, unknown>)[sortKey]
+      const bv = (b as unknown as Record<string, unknown>)[sortKey]
+      if (av == null && bv == null) return 0
+      if (av == null) return 1
+      if (bv == null) return -1
+      const result = av < bv ? -1 : av > bv ? 1 : 0
+      return sortDir === 'asc' ? result : -result
+    })
+  }
 
   const confirmDelete = async () => {
     if (!deleteTarget) return
@@ -65,6 +87,7 @@ export default function PersonList() {
     {
       key: 'firstName',
       label: 'Name',
+      sortable: true,
       render: (_, row) => (
         <span>
           {row.firstName} {row.lastName}
@@ -76,9 +99,9 @@ export default function PersonList() {
       label: 'ID No.',
       render: (v) => <span>{(v as string) ?? '—'}</span>,
     },
-    { key: 'gender', label: 'Gender', width: '90px' },
-    { key: 'age', label: 'Age', width: '70px' },
-    { key: 'bloodType', label: 'Blood Type', width: '100px' },
+    { key: 'gender', label: 'Gender', width: '90px', sortable: true },
+    { key: 'age', label: 'Age', width: '70px', sortable: true },
+    { key: 'bloodType', label: 'Blood Type', width: '100px', sortable: true },
     { key: 'contactNo', label: 'Contact' },
     {
       key: 'actions',
@@ -145,6 +168,9 @@ export default function PersonList() {
           rowKey="id"
           loading={loading}
           emptyMessage="No persons found."
+          sortKey={sortKey || undefined}
+          sortDirection={sortDir}
+          onSort={handleSort}
         />
       </Card>
 

@@ -11,6 +11,7 @@ export interface PrisonerDetail {
   code: string
   personId: number
   mugshotImgKey: string | null
+  mugshotSignedUrl: string | null
   evaluation: string | null
   evaluationScore: number | null
   prisonIntakeId: number

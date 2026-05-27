@@ -5,12 +5,32 @@ export interface NurseOption {
   lastName: string
 }
 
+export interface Prescription {
+  id: number
+  medicineId: number
+  medicineName: string
+  medicineCode: number
+  dosage: number
+  frequency: number
+  duration: number
+}
+
+export interface PrescriptionDraft {
+  medicineId: number
+  medicineName: string
+  medicineCode: number
+  dosage: number
+  frequency: number
+  duration: number
+}
+
 export interface TreatmentDetail {
   id: number
   prisonerId: number
   nurseId: number
   description: string
   diagnoseDate: string
+  prescriptions: Prescription[]
 }
 
 export interface TreatmentListItem {
@@ -32,6 +52,7 @@ export interface CreateTreatmentDto {
   nurseId: number
   description: string
   diagnoseDate: string
+  prescriptions: PrescriptionDraft[]
 }
 
 export type UpdateTreatmentDto = CreateTreatmentDto

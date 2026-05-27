@@ -2,6 +2,7 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { getMedicines } from '../../api/medicine.api'
 import { getPrisonerOptions } from '../../api/prisoner.api'
 import {
   createTreatment,
@@ -9,10 +10,27 @@ import {
   getTreatmentById,
   updateTreatment,
 } from '../../api/treatment.api'
-import { Button, Card, FormGroup, Input, PageLoader, Select } from '../../components/ui'
+import type { LovColumn } from '../../components/ui'
+import { Button, Card, FormGroup, Input, Label, LovButton, PageLoader } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
+import type { Medicine } from '../../types/dto/medicine.dto'
 import type { PrisonerOption } from '../../types/dto/prisoner.dto'
-import type { NurseOption, UpdateTreatmentDto } from '../../types/dto/treatment.dto'
+import type { NurseOption } from '../../types/dto/treatment.dto'
+import type { PrescriptionDraft } from './LineItems'
+import LineItems from './LineItems'
+import '../maintenance/MaintenanceForm.css'
+
+const PRISONER_LOV_COLUMNS: LovColumn<PrisonerOption>[] = [
+  { key: 'code', label: 'Code', width: '80px' },
+  { key: 'firstName', label: 'First Name' },
+  { key: 'lastName', label: 'Last Name' },
+]
+
+const NURSE_LOV_COLUMNS: LovColumn<NurseOption>[] = [
+  { key: 'code', label: 'Code', width: '80px' },
+  { key: 'firstName', label: 'First Name' },
+  { key: 'lastName', label: 'Last Name' },
+]
 
 export default function TreatmentForm() {
   const { id } = useParams<{ id: string }>()
@@ -22,11 +40,15 @@ export default function TreatmentForm() {
 
   const [prisonerOptions, setPrisonerOptions] = useState<PrisonerOption[]>([])
   const [nurseOptions, setNurseOptions] = useState<NurseOption[]>([])
+  const [allMedicines, setAllMedicines] = useState<Medicine[]>([])
 
   const [prisonerId, setPrisonerId] = useState<number>(0)
+  const [prisonerLabel, setPrisonerLabel] = useState('')
   const [nurseId, setNurseId] = useState<number>(0)
+  const [nurseLabel, setNurseLabel] = useState('')
   const [description, setDescription] = useState('')
   const [diagnoseDate, setDiagnoseDate] = useState(new Date().toISOString().slice(0, 10))
+  const [prescriptions, setPrescriptions] = useState<PrescriptionDraft[]>([])
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -36,26 +58,58 @@ export default function TreatmentForm() {
     setLoading(true)
     setError(null)
 
-    const refs = Promise.all([getPrisonerOptions(), getNurseOptions()])
+    const refs = Promise.all([getPrisonerOptions(), getNurseOptions(), getMedicines()])
     const detail = isEdit ? getTreatmentById(Number(id)) : Promise.resolve(null)
 
     Promise.all([refs, detail])
-      .then(([[prisoners, nurses], treatment]) => {
+      .then(([[prisoners, nurses, medicines], treatment]) => {
         setPrisonerOptions(prisoners)
         setNurseOptions(nurses)
+        setAllMedicines(medicines)
 
         if (treatment) {
           setPrisonerId(treatment.prisonerId)
+          const p = prisoners.find((x) => x.id === treatment.prisonerId)
+          if (p) setPrisonerLabel(`[${p.code}] ${p.firstName} ${p.lastName}`)
+
           setNurseId(treatment.nurseId)
+          const n = nurses.find((x) => x.id === treatment.nurseId)
+          if (n) setNurseLabel(`[${n.code}] ${n.firstName} ${n.lastName}`)
+
           setDescription(treatment.description)
           setDiagnoseDate(treatment.diagnoseDate.slice(0, 10))
+          setPrescriptions(
+            treatment.prescriptions.map((rx) => ({
+              medicineId: rx.medicineId,
+              medicineName: rx.medicineName,
+              medicineCode: rx.medicineCode,
+              dosage: rx.dosage,
+              frequency: rx.frequency,
+              duration: rx.duration,
+            }))
+          )
         }
       })
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : 'Failed to load treatment form data')
-      )
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form data'))
       .finally(() => setLoading(false))
   }, [id, isEdit])
+
+  const handleAddPrescription = (item: PrescriptionDraft) => {
+    if (prescriptions.some((p) => p.medicineId === item.medicineId)) {
+      setError('This medicine is already in the prescription list.')
+      return
+    }
+    setPrescriptions((prev) => [...prev, item])
+    setError(null)
+  }
+
+  const handleUpdatePrescription = (index: number, item: PrescriptionDraft) => {
+    setPrescriptions((prev) => prev.map((p, i) => (i === index ? item : p)))
+  }
+
+  const handleRemovePrescription = (index: number) => {
+    setPrescriptions((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -74,11 +128,12 @@ export default function TreatmentForm() {
       return
     }
 
-    const payload: UpdateTreatmentDto = {
+    const payload = {
       prisonerId,
       nurseId,
       description,
       diagnoseDate,
+      prescriptions,
     }
 
     setSubmitting(true)
@@ -100,16 +155,6 @@ export default function TreatmentForm() {
 
   if (loading) return <PageLoader />
 
-  const prisonerOptionsList = prisonerOptions.map((prisoner) => ({
-    value: String(prisoner.id),
-    label: `[${prisoner.code}] ${prisoner.firstName} ${prisoner.lastName}`,
-  }))
-
-  const nurseOptionsList = nurseOptions.map((nurse) => ({
-    value: String(nurse.id),
-    label: `[${nurse.code}] ${nurse.firstName} ${nurse.lastName}`,
-  }))
-
   return (
     <>
       <Link to="/treatment" className="form-page-back">
@@ -120,8 +165,8 @@ export default function TreatmentForm() {
         <h1 className="page-header__title">{isEdit ? 'Edit Treatment' : 'New Treatment'}</h1>
         <p className="page-header__subtitle">
           {isEdit
-            ? 'Update an existing treatment record.'
-            : 'Create a new treatment record for a prisoner.'}
+            ? 'Update treatment record and medication prescriptions.'
+            : 'Create a new treatment record and add medication prescriptions.'}
         </p>
       </div>
 
@@ -129,25 +174,15 @@ export default function TreatmentForm() {
 
       <form onSubmit={handleSubmit}>
         <div className="form-page__section">
-          <Card title="Treatment Details">
+          <Card title="Treatment Record">
             <div className="form-page__grid">
-              <FormGroup label="Prisoner" required>
-                <Select
-                  value={prisonerId ? String(prisonerId) : ''}
-                  onChange={(e) => setPrisonerId(Number(e.target.value))}
-                  options={[{ value: '', label: 'Select a prisoner…' }, ...prisonerOptionsList]}
-                />
-              </FormGroup>
+              <div className="field-id">
+                <Label>ID</Label>
+                <div className="field-id__value">{isEdit ? `#${id}` : 'Auto'}</div>
+              </div>
 
-              <FormGroup label="Nurse" required>
-                <Select
-                  value={nurseId ? String(nurseId) : ''}
-                  onChange={(e) => setNurseId(Number(e.target.value))}
-                  options={[{ value: '', label: 'Select a nurse…' }, ...nurseOptionsList]}
-                />
-              </FormGroup>
-
-              <FormGroup label="Diagnosis Date" required>
+              <FormGroup>
+                <Label required>Diagnosis Date</Label>
                 <Input
                   type="date"
                   value={diagnoseDate}
@@ -156,19 +191,73 @@ export default function TreatmentForm() {
                 />
               </FormGroup>
 
-              <FormGroup label="Description">
+              <FormGroup>
+                <Label required>Prisoner</Label>
+                <LovButton<PrisonerOption>
+                  displayValue={prisonerLabel}
+                  placeholder="Select prisoner…"
+                  modalTitle="Select Prisoner"
+                  columns={PRISONER_LOV_COLUMNS}
+                  data={prisonerOptions}
+                  rowKey="id"
+                  onSelect={(p) => {
+                    setPrisonerId(p.id)
+                    setPrisonerLabel(`[${p.code}] ${p.firstName} ${p.lastName}`)
+                  }}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label required>Nurse</Label>
+                <LovButton<NurseOption>
+                  displayValue={nurseLabel}
+                  placeholder="Select nurse…"
+                  modalTitle="Select Nurse"
+                  columns={NURSE_LOV_COLUMNS}
+                  data={nurseOptions}
+                  rowKey="id"
+                  onSelect={(n) => {
+                    setNurseId(n.id)
+                    setNurseLabel(`[${n.code}] ${n.firstName} ${n.lastName}`)
+                  }}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Description / Diagnosis</Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the treatment or observation"
+                  placeholder="Describe the diagnosis or treatment notes"
                 />
               </FormGroup>
             </div>
           </Card>
         </div>
 
-        <div className="form-page__section">
-          <Button type="submit" disabled={submitting}>
+        <Card
+          title={`Medication Prescriptions${prescriptions.length ? ` (${prescriptions.length})` : ''}`}
+          padding="flush"
+        >
+          <LineItems
+            items={prescriptions}
+            allMedicines={allMedicines}
+            onAdd={handleAddPrescription}
+            onUpdate={handleUpdatePrescription}
+            onRemove={handleRemovePrescription}
+          />
+        </Card>
+
+        <div className="form-page__actions">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => navigate('/treatment')}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" loading={submitting}>
             {isEdit ? 'Save Changes' : 'Create Treatment'}
           </Button>
         </div>

@@ -1,27 +1,38 @@
-import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon, Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { type VisitmentData, visitmentApi } from '../../api/visitment.api'
 import {
+  Badge,
   Button,
   Card,
   type Column,
+  Input,
   Modal,
   PageLoader,
   type SortDirection,
   Table,
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
-import './VisitmentForm.css'
+
+type VisitBadgeVariant = 'success' | 'danger' | 'primary'
+
+function statusVariant(status: string): VisitBadgeVariant {
+  if (status === 'completed') return 'success'
+  if (status === 'cancelled') return 'danger'
+  return 'primary'
+}
 
 export default function VisitmentList() {
   const [data, setData] = useState<VisitmentData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<string>('visitmentDate')
   const [sortDir, setSortDir] = useState<SortDirection>('desc')
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [recordToDelete, setRecordToDelete] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -50,7 +61,15 @@ export default function VisitmentList() {
     }
   }
 
-  const displayed = [...data].sort((a, b) => {
+  const q = search.trim().toLowerCase()
+  const filtered = q
+    ? data.filter(
+        (row) =>
+          row.prisonerName?.toLowerCase().includes(q) || row.prisonerCode?.toLowerCase().includes(q)
+      )
+    : data
+
+  const displayed = [...filtered].sort((a, b) => {
     const key = sortKey as keyof VisitmentData
     let av = a[key] as string | number | undefined
     let bv = b[key] as string | number | undefined
@@ -72,26 +91,19 @@ export default function VisitmentList() {
 
   const handleDelete = async () => {
     if (recordToDelete === null) return
+    setDeleting(true)
     try {
       await visitmentApi.delete(recordToDelete)
       toast.success('Record deleted successfully')
-      loadData()
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Delete failed')
-    } finally {
       setDeleteModalOpen(false)
       setRecordToDelete(null)
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'var(--color-success)'
-      case 'cancelled':
-        return 'var(--color-danger)'
-      default:
-        return 'var(--color-primary)'
+      void loadData()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Delete failed')
+      setDeleteModalOpen(false)
+      setRecordToDelete(null)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -102,12 +114,8 @@ export default function VisitmentList() {
       label: 'Prisoner',
       render: (_, row) => (
         <div>
-          <div style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
-            {row.prisonerName}
-          </div>
-          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
-            {row.prisonerCode}
-          </div>
+          <div>{row.prisonerName}</div>
+          <div className="cell-muted">{row.prisonerCode}</div>
         </div>
       ),
     },
@@ -117,7 +125,7 @@ export default function VisitmentList() {
       width: '150px',
       sortable: true,
       render: (val) => (
-        <span style={{ color: 'var(--color-text-muted)' }}>
+        <span className="cell-muted">
           {new Date(val as string).toLocaleDateString('en-GB', {
             day: '2-digit',
             month: 'short',
@@ -130,40 +138,25 @@ export default function VisitmentList() {
       key: 'duration',
       label: 'Duration',
       width: '100px',
+      sortable: true,
       render: (val) => `${val} mins`,
     },
     {
       key: 'status',
       label: 'Status',
-      width: '150px',
+      width: '130px',
+      sortable: true,
       render: (val) => (
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: 'var(--font-size-xs)',
-            fontWeight: '600',
-            textTransform: 'uppercase',
-            color: getStatusColor(val as string),
-          }}
-        >
-          <span
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              backgroundColor: getStatusColor(val as string),
-            }}
-          />
+        <Badge variant={statusVariant(val as string)} dot>
           {val as string}
-        </span>
+        </Badge>
       ),
     },
     {
       key: 'visitorCount',
       label: 'Visitors',
       width: '100px',
+      sortable: true,
       render: (val) => `${val ?? 0} persons`,
     },
     {
@@ -171,27 +164,29 @@ export default function VisitmentList() {
       label: '',
       width: '100px',
       render: (_, row) => (
-        <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+        <span className="cell-actions">
           <Button
-            size="sm"
             variant="ghost"
+            size="sm"
             iconOnly
+            title="Edit"
             onClick={() => navigate(`/visitation/edit/${row.id}`)}
           >
             <Pencil1Icon width={14} height={14} />
           </Button>
           <Button
-            size="sm"
             variant="ghost"
+            size="sm"
             iconOnly
-            style={{ color: 'var(--color-danger)' }}
+            title="Delete"
+            className="btn-danger-ghost"
             onClick={() => {
               if (row.id !== undefined) confirmDelete(row.id)
             }}
           >
             <TrashIcon width={14} height={14} />
           </Button>
-        </div>
+        </span>
       ),
     },
   ]
@@ -199,36 +194,41 @@ export default function VisitmentList() {
   if (loading && data.length === 0) return <PageLoader />
 
   return (
-    <div className="visitment-form-page">
-      <div
-        className="page-header"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 'var(--space-6)',
-        }}
-      >
-        <div>
-          <h1 className="page-header__title">Visitment List</h1>
-          <p className="page-header__subtitle">
-            Manage and track all registered visitation records.
-          </p>
-        </div>
-        <Button variant="primary" onClick={() => navigate('/visitation/new')}>
-          <PlusIcon style={{ marginRight: 'var(--space-2)' }} />
-          New Visitment
-        </Button>
+    <>
+      <div className="page-header">
+        <h1 className="page-header__title">Visitment Records</h1>
+        <p className="page-header__subtitle">Manage and track all registered visitation records.</p>
       </div>
 
-      {error && <div className="form-error-banner">{error}</div>}
+      {error && <p className="page-error">{error}</p>}
 
       <Card padding="flush">
+        <div className="page-toolbar">
+          <div className="page-toolbar__search">
+            <Input
+              prefix={<MagnifyingGlassIcon width={15} height={15} />}
+              placeholder="Search by prisoner name or code…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="page-toolbar__actions">
+            <Button size="sm" onClick={() => navigate('/visitation/new')}>
+              <PlusIcon width={13} height={13} /> New Visitment
+            </Button>
+          </div>
+        </div>
+
+        <div className="page-count">
+          {loading ? 'Loading…' : `${displayed.length} of ${data.length} record(s)`}
+        </div>
+
         <Table
           columns={COLUMNS}
           data={displayed}
           rowKey="id"
           loading={loading}
+          emptyMessage="No visitation records found."
           sortKey={sortKey}
           sortDirection={sortDir}
           onSort={handleSort}
@@ -238,25 +238,27 @@ export default function VisitmentList() {
       <Modal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        title="Delete Record"
+        title="Delete Visitment"
         size="sm"
         footer={
-          <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
-            <Button variant="secondary" onClick={() => setDeleteModalOpen(false)}>
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={deleting}
+            >
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              style={{ backgroundColor: 'var(--color-danger)', borderColor: 'var(--color-danger)' }}
-              onClick={handleDelete}
-            >
+            <Button variant="danger" loading={deleting} onClick={handleDelete}>
               Delete
             </Button>
-          </div>
+          </>
         }
       >
-        <p>Are you sure you want to delete this record? This action cannot be undone.</p>
+        <p className="delete-confirm-text">
+          Are you sure you want to delete this visitation record? This action cannot be undone.
+        </p>
       </Modal>
-    </div>
+    </>
   )
 }

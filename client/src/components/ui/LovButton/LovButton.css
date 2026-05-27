@@ -128,7 +128,8 @@
 }
 
 .lov-table__row:hover .lov-table__td {
-  background-color: var(--color-primary-bg);
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .lov-table__empty {

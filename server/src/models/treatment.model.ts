@@ -6,12 +6,33 @@ export interface TreatmentDetailRow {
   diagnose_date: string
 }
 
+export interface PrescriptionRow {
+  id: number
+  medicine_id: number
+  medicine_name: string
+  medicine_code: number
+  dosage: number
+  frequency: number
+  duration: number
+}
+
+export interface Prescription {
+  id: number
+  medicineId: number
+  medicineName: string
+  medicineCode: number
+  dosage: number
+  frequency: number
+  duration: number
+}
+
 export interface TreatmentDetail {
   id: number
   prisonerId: number
   nurseId: number
   description: string
   diagnoseDate: string
+  prescriptions: Prescription[]
 }
 
 export interface TreatmentListRow {
@@ -56,12 +77,26 @@ export interface NurseOption {
   lastName: string
 }
 
-export const toTreatmentDetail = (row: TreatmentDetailRow): TreatmentDetail => ({
+export const toPrescription = (row: PrescriptionRow): Prescription => ({
+  id: row.id,
+  medicineId: row.medicine_id,
+  medicineName: row.medicine_name,
+  medicineCode: row.medicine_code,
+  dosage: row.dosage,
+  frequency: row.frequency,
+  duration: row.duration,
+})
+
+export const toTreatmentDetail = (
+  row: TreatmentDetailRow,
+  prescriptions: Prescription[] = []
+): TreatmentDetail => ({
   id: row.id,
   prisonerId: row.prisoner_id,
   nurseId: row.nurse_id,
   description: row.description ?? '',
   diagnoseDate: row.diagnose_date,
+  prescriptions,
 })
 
 export const toTreatmentListItem = (row: TreatmentListRow): TreatmentListItem => ({

@@ -23,27 +23,18 @@
 }
 
 .sidebar__brand-icon {
-  width: 36px;
-  height: 36px;
-  background-color: var(--color-primary);
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  color: var(--color-white);
-}
-
-.sidebar__brand-text {
-  display: flex;
-  flex-direction: column;
+  object-fit: contain;
 }
 
 .sidebar__brand-name {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);
-  line-height: 1;
+  line-height: 1.3;
 }
 
 .sidebar__brand-sub {
@@ -74,14 +65,11 @@
   color: rgba(255, 255, 255, 0.6);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .sidebar__section-link:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-white);
 }
 
 .sidebar__section-link--active {
@@ -108,13 +96,17 @@
   background: none;
   width: 100%;
   text-align: left;
-  transition: background-color var(--transition-fast);
+  transition: color var(--transition-fast);
   -webkit-user-select: none;
   user-select: none;
 }
 
-.sidebar__section-header:hover {
-  background-color: rgba(255, 255, 255, 0.06);
+.sidebar__section-header:hover .sidebar__section-label {
+  color: var(--color-white);
+}
+
+.sidebar__section-header:hover .sidebar__section-icon {
+  color: var(--color-white);
 }
 
 .sidebar__section-header--active {
@@ -212,9 +204,7 @@
   color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
   position: relative;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .sidebar__link::before {
@@ -231,8 +221,7 @@
 }
 
 .sidebar__link:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-white);
 }
 
 .sidebar__link--active {
