@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import incidentRoutes from './incident.routes.js'
 import incidentReportRoutes from './incident-report.routes.js'
+import inspectionRoutes from './inspection.routes.js'
 import irregularityRoutes from './irregularity.routes.js'
 import laborReportRoutes from './labor-report.routes.js'
 import maintainanceRoutes from './maintainance.routes.js'
@@ -8,6 +9,7 @@ import maintainerRoutes from './maintainer.routes.js'
 import medicineRoutes from './medicine.routes.js'
 import nurseRoutes from './nurse.routes.js'
 import officerRoutes from './officer.routes.js'
+import officerReportRoutes from './officer-report.routes.js'
 import personRoutes from './person.routes.js'
 import prisonLocationRoutes from './prison-location.routes.js'
 import prisonerRoutes from './prisoner.routes.js'
@@ -38,5 +40,7 @@ router.route('/prisoner-intake', prisonerIntakeRoutes)
 router.route('/prisoner-intake-reports', prisonerIntakeReportRoutes)
 router.route('/treatment-reports', treatmentReportRoutes)
 router.route('/treatment', treatmentRoutes)
+router.route('/inspections', inspectionRoutes)
+router.route('/officer-reports', officerReportRoutes)
 
 export default router
