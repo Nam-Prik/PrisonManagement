@@ -21,6 +21,19 @@ export interface RoutineOfficerRow {
   officer_code: number
 }
 
+export interface RoutineInspectionHeadRow {
+  id: number
+  code: string
+  reason: string
+}
+
+export interface RoutineInspectionLineRow {
+  found_irregularity_id: number
+  result_description: string
+  irregularity_type: string
+  severity: string
+}
+
 export interface RoutineListItem {
   id: number
   routineName: string
@@ -41,6 +54,17 @@ export interface RoutineDetail {
     officerName: string
     officerCode: number
   }[]
+  inspection?: {
+    id: number
+    code: string
+    reason: string
+    results: {
+      foundIrregularityId: number
+      irregularityType: string
+      severity: string
+      resultDescription: string
+    }[]
+  }
 }
 
 export function toRoutineListItem(row: RoutineListRow): RoutineListItem {
@@ -54,8 +78,13 @@ export function toRoutineListItem(row: RoutineListRow): RoutineListItem {
   }
 }
 
-export function toRoutineDetail(head: RoutineDetailRow, lines: RoutineOfficerRow[]): RoutineDetail {
-  return {
+export function toRoutineDetail(
+  head: RoutineDetailRow,
+  lines: RoutineOfficerRow[],
+  insHead?: RoutineInspectionHeadRow,
+  insLines?: RoutineInspectionLineRow[]
+): RoutineDetail {
+  const detail: RoutineDetail = {
     id: head.id,
     routineName: head.routine_name,
     prisonLocationId: head.prison_location_id,
@@ -67,4 +96,20 @@ export function toRoutineDetail(head: RoutineDetailRow, lines: RoutineOfficerRow
       officerCode: l.officer_code,
     })),
   }
+
+  if (insHead) {
+    detail.inspection = {
+      id: insHead.id,
+      code: insHead.code,
+      reason: insHead.reason,
+      results: (insLines || []).map((l) => ({
+        foundIrregularityId: l.found_irregularity_id,
+        irregularityType: l.irregularity_type,
+        severity: l.severity,
+        resultDescription: l.result_description,
+      })),
+    }
+  }
+
+  return detail
 }

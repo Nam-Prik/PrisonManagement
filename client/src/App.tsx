@@ -2,8 +2,6 @@ import { Navigate, Route, Routes } from 'react-router'
 import AppLayout from './components/layout/AppLayout/AppLayout'
 import IncidentForm from './pages/incident/IncidentForm'
 import IncidentList from './pages/incident/IncidentList'
-import InspectionForm from './pages/inspection/InspectionForm'
-import InspectionList from './pages/inspection/InspectionList'
 import IrregularityForm from './pages/irregularity/IrregularityForm'
 import IrregularityList from './pages/irregularity/IrregularityList'
 import MaintainerForm from './pages/maintainer/MaintainerForm'
@@ -107,10 +105,6 @@ export default function App() {
         <Route path="/irregularity" element={<IrregularityList />} />
         <Route path="/irregularity/new" element={<IrregularityForm />} />
         <Route path="/irregularity/:id" element={<IrregularityForm />} />
-
-        <Route path="/inspections" element={<InspectionList />} />
-        <Route path="/inspections/new" element={<InspectionForm />} />
-        <Route path="/inspections/:id" element={<InspectionForm />} />
 
         <Route path="/routines" element={<RoutineList />} />
         <Route path="/routines/new" element={<RoutineForm />} />

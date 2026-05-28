@@ -30,8 +30,8 @@ export interface RoutineListItem {
 
 export interface RoutineOfficer {
   officerId: number
+  officerCode: number | string
   officerName: string
-  officerCode: number
 }
 
 export interface RoutineDetail {
@@ -41,14 +41,31 @@ export interface RoutineDetail {
   scheduleDate: string
   type: string
   officers: RoutineOfficer[]
+  inspection?: {
+    id: number
+    code: string
+    reason: string
+    results: {
+      foundIrregularityId: number
+      irregularityType: string
+      severity: string
+      resultDescription: string
+    }[]
+  }
 }
 
 export interface CreateRoutineDto {
   routineName: string
   prisonLocationId: number
-  routinesScheduleDate: string // YYYY-MM-DD
-  type: RoutineType
+  routinesScheduleDate: string
+  type: RoutineType | string
   officerIds: number[]
+
+  inspectionReason?: string
+  inspectionResults?: {
+    foundIrregularityId: number
+    resultDescription: string
+  }[]
 }
 
 export type UpdateRoutineDto = Partial<CreateRoutineDto>

@@ -35,7 +35,6 @@ const NAV: NavSection[] = [
       { label: 'Incidents', path: '/incident' },
       { label: 'Prisoner Intake', path: '/prisoner-intake' },
       { label: 'Routines', path: '/routines' },
-      { label: 'Inspections', path: '/inspections' },
     ],
   },
   {

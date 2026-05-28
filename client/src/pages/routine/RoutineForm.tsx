@@ -2,6 +2,7 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { getIrregularities } from '../../api/irregularity.api'
 import { getOfficerOptions } from '../../api/officer.api'
 import { getPrisonLocations } from '../../api/prison-location.api'
 import { createRoutine, getRoutineById, updateRoutine } from '../../api/routine.api'
@@ -17,11 +18,14 @@ import {
   Select,
 } from '../../components/ui'
 import { useToast } from '../../context/ToastContext'
+import type { Irregularity } from '../../types/dto/irregularity.dto'
 import type { OfficerOption } from '../../types/dto/officer.dto'
 import type { PrisonLocation } from '../../types/dto/prison-location.dto'
-import type { RoutineOfficer, RoutineType } from '../../types/dto/routine.dto'
+import type { CreateRoutineDto, RoutineOfficer, RoutineType } from '../../types/dto/routine.dto'
 import { ROUTINE_TYPES } from '../../types/dto/routine.dto'
 import AssignedOfficers from './AssignedOfficers'
+import type { InspectionLineItemDraft } from './InspectionLineItems'
+import InspectionLineItems from './InspectionLineItems'
 
 import '../maintenance/MaintenanceForm.css'
 
@@ -39,14 +43,21 @@ export default function RoutineForm() {
   const toast = useToast()
   const isEdit = id !== undefined
 
+  // Reference Data
   const [locations, setLocations] = useState<PrisonLocation[]>([])
   const [officers, setOfficers] = useState<OfficerOption[]>([])
+  const [irregularities, setIrregularities] = useState<Irregularity[]>([])
 
+  // Routine Form State
   const [routineName, setRoutineName] = useState('')
   const [type, setType] = useState<string>('')
   const [scheduleDate, setScheduleDate] = useState('')
   const [locationId, setLocationId] = useState<number>(0)
   const [assignedOfficers, setAssignedOfficers] = useState<RoutineOfficer[]>([])
+
+  // Inspection Form State (Only used if type === 'Inspection')
+  const [inspectionReason, setInspectionReason] = useState('')
+  const [lineItems, setLineItems] = useState<InspectionLineItemDraft[]>([])
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -56,13 +67,15 @@ export default function RoutineForm() {
     setLoading(true)
     setError(null)
 
-    const refData = Promise.all([getPrisonLocations(), getOfficerOptions()])
+    // Fetch all 3 dropdown dependencies at once
+    const refData = Promise.all([getPrisonLocations(), getOfficerOptions(), getIrregularities()])
     const detailData = isEdit ? getRoutineById(Number(id)) : Promise.resolve(null)
 
     Promise.all([refData, detailData])
-      .then(([[locationsData, officersData], detail]) => {
+      .then(([[locationsData, officersData, irregularitiesData], detail]) => {
         setLocations(locationsData)
         setOfficers(officersData)
+        setIrregularities(irregularitiesData)
 
         if (detail) {
           setRoutineName(detail.routineName)
@@ -70,6 +83,19 @@ export default function RoutineForm() {
           setScheduleDate(detail.scheduleDate)
           setLocationId(detail.prisonLocationId)
           setAssignedOfficers(detail.officers)
+
+          if (detail.inspection) {
+            setInspectionReason(detail.inspection.reason)
+            setLineItems(
+              detail.inspection.results.map((r) => ({
+                foundIrregularityId: r.foundIrregularityId,
+                irregularityType: r.irregularityType,
+                severity: r.severity,
+                irregularityDescription: '', // Backend doesn't return base desc in detail view
+                resultDescription: r.resultDescription,
+              }))
+            )
+          }
         }
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form data'))
@@ -81,12 +107,26 @@ export default function RoutineForm() {
     ? `[${selectedLocation.code}] ${selectedLocation.name}`
     : ''
 
-  const handleAddOfficer = (officer: RoutineOfficer) => {
+  // Officer Handlers
+  const handleAddOfficer = (officer: RoutineOfficer) =>
     setAssignedOfficers((prev) => [...prev, officer])
-  }
-
-  const handleRemoveOfficer = (index: number) => {
+  const handleRemoveOfficer = (index: number) =>
     setAssignedOfficers((prev) => prev.filter((_, i) => i !== index))
+
+  // Inspection Line Item Handlers
+  const handleAddIrregularity = (item: InspectionLineItemDraft) => {
+    if (lineItems.some((li) => li.foundIrregularityId === item.foundIrregularityId)) {
+      setError('This finding is already logged.')
+      return
+    }
+    setLineItems((prev) => [...prev, item])
+    setError(null)
+  }
+  const handleUpdateIrregularity = (index: number, item: InspectionLineItemDraft) => {
+    setLineItems((prev) => prev.map((li, i) => (i === index ? item : li)))
+  }
+  const handleRemoveIrregularity = (index: number) => {
+    setLineItems((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -98,12 +138,24 @@ export default function RoutineForm() {
     if (!locationId) return setError('Please select a Location.')
     if (!scheduleDate) return setError('Please select a Schedule Date.')
 
-    const dto = {
+    if (type === 'Inspection' && !inspectionReason) {
+      return setError('Please enter a reason for the inspection.')
+    }
+
+    const dto: CreateRoutineDto = {
       routineName,
       type: type as RoutineType,
       prisonLocationId: locationId,
       routinesScheduleDate: scheduleDate,
       officerIds: assignedOfficers.map((o) => o.officerId),
+    }
+
+    if (type === 'Inspection') {
+      dto.inspectionReason = inspectionReason
+      dto.inspectionResults = lineItems.map((li) => ({
+        foundIrregularityId: li.foundIrregularityId,
+        resultDescription: li.resultDescription,
+      }))
     }
 
     setSubmitting(true)
@@ -132,7 +184,7 @@ export default function RoutineForm() {
       </Link>
 
       <div className="page-header">
-        <h1 className="page-header__title">{isEdit ? 'Edit Routine' : 'Schedule Routine'}</h1>
+        <h1 className="page-header__title">{isEdit ? 'Edit Schedule' : 'Schedule Routine'}</h1>
         <p className="page-header__subtitle">Manage schedule details and assign active officers.</p>
       </div>
 
@@ -185,6 +237,20 @@ export default function RoutineForm() {
                   required
                 />
               </FormGroup>
+
+              {type === 'Inspection' && (
+                <div style={{ gridColumn: 'span 2' }}>
+                  <FormGroup>
+                    <Label required>Reason for Inspection</Label>
+                    <Input
+                      value={inspectionReason}
+                      onChange={(e) => setInspectionReason(e.target.value)}
+                      placeholder="e.g. Routine quarterly cell sweep"
+                      required={type === 'Inspection'}
+                    />
+                  </FormGroup>
+                </div>
+              )}
             </div>
           </Card>
         </div>
@@ -201,6 +267,21 @@ export default function RoutineForm() {
           />
         </Card>
 
+        {type === 'Inspection' && (
+          <Card
+            title={`Irregularity Findings${lineItems.length ? ` (${lineItems.length})` : ''}`}
+            padding="flush"
+          >
+            <InspectionLineItems
+              items={lineItems}
+              allIrregularities={irregularities}
+              onAdd={handleAddIrregularity}
+              onUpdate={handleUpdateIrregularity}
+              onRemove={handleRemoveIrregularity}
+            />
+          </Card>
+        )}
+
         <div className="form-page__actions">
           <Button
             type="button"
@@ -211,7 +292,7 @@ export default function RoutineForm() {
             Cancel
           </Button>
           <Button type="submit" loading={submitting}>
-            {isEdit ? 'Save Changes' : 'Schedule Routine'}
+            {isEdit ? 'Save Changes' : 'Save Schedule'}
           </Button>
         </div>
       </form>
