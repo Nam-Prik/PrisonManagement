@@ -19,7 +19,7 @@ async function fetchPrescriptions(treatmentId: number): Promise<Prescription[]> 
   const result = await pool.query<PrescriptionRow>(
     `SELECT mp.id, mp.medicine_id, m.name AS medicine_name, m.code AS medicine_code,
             mp.dosage, mp.frequency, mp.duration
-     FROM medication_prescription mp
+     FROM medicationprescription mp
      JOIN medicine m ON m.id = mp.medicine_id
      WHERE mp.treatment_id = $1
      ORDER BY mp.id`,
@@ -75,7 +75,7 @@ export const treatmentRepository = {
 
       for (const p of dto.prescriptions ?? []) {
         await client.query(
-          `INSERT INTO medication_prescription (treatment_id, medicine_id, dosage, frequency, duration)
+          `INSERT INTO medicationprescription (treatment_id, medicine_id, dosage, frequency, duration)
            VALUES ($1, $2, $3, $4, $5)`,
           [createdId, p.medicineId, p.dosage, p.frequency, p.duration]
         )
@@ -141,10 +141,10 @@ export const treatmentRepository = {
         [dto.prisonerId, dto.nurseId, dto.description || null, dto.diagnoseDate, id]
       )
 
-      await client.query('DELETE FROM medication_prescription WHERE treatment_id = $1', [id])
+      await client.query('DELETE FROM medicationprescription WHERE treatment_id = $1', [id])
       for (const p of dto.prescriptions ?? []) {
         await client.query(
-          `INSERT INTO medication_prescription (treatment_id, medicine_id, dosage, frequency, duration)
+          `INSERT INTO medicationprescription (treatment_id, medicine_id, dosage, frequency, duration)
            VALUES ($1, $2, $3, $4, $5)`,
           [id, p.medicineId, p.dosage, p.frequency, p.duration]
         )
