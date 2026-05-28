@@ -145,12 +145,14 @@ export default function PersonForm() {
         age: Number(age),
         dateOfBirth,
         bloodType: bloodType as 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | 'Unknown',
+
         nationalIdNumber: nationalIdNumber ? Number(nationalIdNumber) : undefined,
-        nationalIdFileKey: newNatIdKey || undefined,
         houseRegistrationNumber: houseRegNumber ? Number(houseRegNumber) : undefined,
-        houseRegistrationFileKey: newHouseRegKey || undefined,
         birthCertificateNumber: birthCertNumber ? Number(birthCertNumber) : undefined,
-        birthCertificateFileKey: newBirthCertKey || undefined,
+
+        nationalIdFileKey: newNatIdKey || nationalIdFileKey || undefined,
+        houseRegistrationFileKey: newHouseRegKey || houseRegFileKey || undefined,
+        birthCertificateFileKey: newBirthCertKey || birthCertFileKey || undefined,
       }
 
       // 3. Save the record
