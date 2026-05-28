@@ -5,10 +5,9 @@ import type {
   InspectionDetailLineRow,
   InspectionListRow,
 } from '../models/inspection.model.js'
-import { toInspectionDetail, toInspectionListItem } from '../models/inspection.model.js'
 
 export const inspectionRepository = {
-  async findAll() {
+  async findAll(): Promise<InspectionListRow[]> {
     const query = `
       SELECT 
         i.id, 
@@ -23,10 +22,12 @@ export const inspectionRepository = {
       ORDER BY i.id DESC
     `
     const result = await pool.query<InspectionListRow>(query)
-    return result.rows.map(toInspectionListItem)
+    return result.rows
   },
 
-  async findById(id: number) {
+  async findById(
+    id: number
+  ): Promise<{ head: InspectionDetailHeadRow; lines: InspectionDetailLineRow[] } | null> {
     const headQuery = `
       SELECT i.id, i.code, i.reason, i.routine_id, rs.routine_name
       FROM inspection i
@@ -49,7 +50,7 @@ export const inspectionRepository = {
     `
     const linesResult = await pool.query<InspectionDetailLineRow>(linesQuery, [id])
 
-    return toInspectionDetail(headResult.rows[0], linesResult.rows)
+    return { head: headResult.rows[0], lines: linesResult.rows }
   },
 
   async create(dto: CreateInspectionDto) {
@@ -57,14 +58,12 @@ export const inspectionRepository = {
     try {
       await client.query('BEGIN')
 
-      // Insert Parent
       const headResult = await client.query<{ id: number }>(
         `INSERT INTO inspection (code, reason, routine_id) VALUES ($1, $2, $3) RETURNING id`,
         [dto.code, dto.reason, dto.routineId]
       )
       const newId = headResult.rows[0].id
 
-      // Insert Line Items
       if (dto.results && dto.results.length > 0) {
         for (const item of dto.results) {
           await client.query(
@@ -90,7 +89,6 @@ export const inspectionRepository = {
     try {
       await client.query('BEGIN')
 
-      // Dynamic UPDATE query build for the parent (matching the Maintainer pattern)
       const fields: string[] = []
       const values: unknown[] = []
       let i = 1
@@ -120,7 +118,6 @@ export const inspectionRepository = {
         }
       }
 
-      // If line items were provided, wipe and replace
       if (dto.results !== undefined) {
         await client.query(`DELETE FROM inspectionresult WHERE inspection_id = $1`, [id])
 
@@ -143,15 +140,12 @@ export const inspectionRepository = {
     }
   },
 
-  async delete(id: number) {
+  async delete(id: number): Promise<boolean> {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
-
-      // Delete children first to satisfy foreign key constraints
       await client.query(`DELETE FROM inspectionresult WHERE inspection_id = $1`, [id])
       const res = await client.query(`DELETE FROM inspection WHERE id = $1`, [id])
-
       await client.query('COMMIT')
       return (res.rowCount ?? 0) > 0
     } catch (err) {
