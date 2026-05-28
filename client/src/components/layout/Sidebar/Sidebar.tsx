@@ -34,6 +34,8 @@ const NAV: NavSection[] = [
       { label: 'Treatment', path: '/treatment' },
       { label: 'Incidents', path: '/incident' },
       { label: 'Prisoner Intake', path: '/prisoner-intake' },
+      { label: 'Routines', path: '/routines' },
+      { label: 'Inspections', path: '/inspections' },
     ],
   },
   {
@@ -92,11 +94,27 @@ const NAV: NavSection[] = [
         ],
       },
       {
+        label: 'Officer & Routines',
+        links: [
+          { label: 'Officer Routines', path: '/reports/officer/routines' },
+          { label: 'Irregularities List', path: '/reports/officer/irregularities-list' },
+          { label: 'Irregularities Summary', path: '/reports/officer/irregularities-summary' },
+        ],
+      },
+      {
         label: 'Treatment',
         links: [
           { label: 'Prisoner Treatment Experience', path: '/reports/treatment/experience' },
           { label: 'Medicine Prescription', path: '/reports/treatment/medicine-prescription' },
           { label: 'Nurse Workload', path: '/reports/treatment/nurse-workload' },
+        ],
+      },
+      {
+        label: 'Officer & Routines',
+        links: [
+          { label: 'Officer Routines', path: '/reports/officer/routines' },
+          { label: 'Irregularities List', path: '/reports/officer/irregularities-list' },
+          { label: 'Irregularities Summary', path: '/reports/officer/irregularities-summary' },
         ],
       },
     ],

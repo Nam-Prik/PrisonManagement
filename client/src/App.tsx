@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router'
 import AppLayout from './components/layout/AppLayout/AppLayout'
 import IncidentForm from './pages/incident/IncidentForm'
 import IncidentList from './pages/incident/IncidentList'
+import InspectionForm from './pages/inspection/InspectionForm'
+import InspectionList from './pages/inspection/InspectionList'
 import IrregularityForm from './pages/irregularity/IrregularityForm'
 import IrregularityList from './pages/irregularity/IrregularityList'
 import MaintainerForm from './pages/maintainer/MaintainerForm'
@@ -29,6 +31,9 @@ import TopPrisonersByLocation from './pages/reports/incident/TopPrisonersByLocat
 import CostByLocation from './pages/reports/maintenance/CostByLocation'
 import LaborByCost from './pages/reports/maintenance/LaborByCost'
 import MaintainersBySkill from './pages/reports/maintenance/MaintainersBySkill'
+import IrregularitiesList from './pages/reports/officer/IrregularitiesList'
+import IrregularitiesSummary from './pages/reports/officer/IrregularitiesSummary'
+import OfficerRoutines from './pages/reports/officer/OfficerRoutines'
 import ConfiscatedItems from './pages/reports/prisonerintake/ConfiscatedItems'
 import IntakeByDateRange from './pages/reports/prisonerintake/IntakeByDateRange'
 import TotalItemsAnalysis from './pages/reports/prisonerintake/TotalItemsAnalysis'
@@ -38,6 +43,8 @@ import TreatmentExperience from './pages/reports/treatment/TreatmentExperience'
 import VisitationAnalysis from './pages/reports/visitation/VisitationAnalysis'
 import VisitationLogs from './pages/reports/visitation/VisitationLogs'
 import VisitorRelationship from './pages/reports/visitation/VisitorRelationship'
+import RoutineForm from './pages/routine/RoutineForm'
+import RoutineList from './pages/routine/RoutineList'
 import TreatmentForm from './pages/treatment/TreatmentForm'
 import TreatmentList from './pages/treatment/TreatmentList'
 import VisitmentForm from './pages/visitation/VisitmentForm'
@@ -101,6 +108,14 @@ export default function App() {
         <Route path="/irregularity/new" element={<IrregularityForm />} />
         <Route path="/irregularity/:id" element={<IrregularityForm />} />
 
+        <Route path="/inspections" element={<InspectionList />} />
+        <Route path="/inspections/new" element={<InspectionForm />} />
+        <Route path="/inspections/:id" element={<InspectionForm />} />
+
+        <Route path="/routines" element={<RoutineList />} />
+        <Route path="/routines/new" element={<RoutineForm />} />
+        <Route path="/routines/:id" element={<RoutineForm />} />
+
         <Route path="/reports/maintenance/maintainers-by-skill" element={<MaintainersBySkill />} />
         <Route path="/reports/maintenance/labor-by-cost" element={<LaborByCost />} />
         <Route path="/reports/maintenance/cost-by-location" element={<CostByLocation />} />
@@ -119,6 +134,9 @@ export default function App() {
         <Route path="/reports/treatment/experience" element={<TreatmentExperience />} />
         <Route path="/reports/treatment/medicine-prescription" element={<MedicinePrescription />} />
         <Route path="/reports/treatment/nurse-workload" element={<NurseWorkload />} />
+        <Route path="/reports/officer/routines" element={<OfficerRoutines />} />
+        <Route path="/reports/officer/irregularities-list" element={<IrregularitiesList />} />
+        <Route path="/reports/officer/irregularities-summary" element={<IrregularitiesSummary />} />
       </Route>
     </Routes>
   )
