@@ -76,8 +76,14 @@ export const inspectionRepository = {
 
       await client.query('COMMIT')
       return this.findById(newId)
-    } catch (err) {
+    } catch (err: unknown) {
       await client.query('ROLLBACK')
+      const pgErr = err as { code?: string; constraint?: string }
+      if (pgErr.code === '23505' && pgErr.constraint === 'inspection_routine_id_key') {
+        throw new Error(
+          'This Routine Schedule already has an inspection logged against it. Please select a different routine.'
+        )
+      }
       throw err
     } finally {
       client.release()
@@ -132,8 +138,14 @@ export const inspectionRepository = {
 
       await client.query('COMMIT')
       return this.findById(id)
-    } catch (err) {
+    } catch (err: unknown) {
       await client.query('ROLLBACK')
+      const pgErr = err as { code?: string; constraint?: string }
+      if (pgErr.code === '23505' && pgErr.constraint === 'inspection_routine_id_key') {
+        throw new Error(
+          'This Routine Schedule already has an inspection logged against it. Please select a different routine.'
+        )
+      }
       throw err
     } finally {
       client.release()
