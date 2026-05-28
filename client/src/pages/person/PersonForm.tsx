@@ -80,7 +80,11 @@ export default function PersonForm() {
   const [birthCertNumber, setBirthCertNumber] = useState('')
   const [birthCertFileKey, setBirthCertFileKey] = useState('')
 
-  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null)
+  // New states to hold pending file uploads
+  const [nationalIdFile, setNationalIdFile] = useState<File | null>(null)
+  const [houseRegFile, setHouseRegFile] = useState<File | null>(null)
+  const [birthCertFile, setBirthCertFile] = useState<File | null>(null)
+
   const nationalIdRef = useRef<HTMLInputElement>(null)
   const houseRegRef = useRef<HTMLInputElement>(null)
   const birthCertRef = useRef<HTMLInputElement>(null)
@@ -111,55 +115,26 @@ export default function PersonForm() {
       .finally(() => setLoading(false))
   }, [id, isEdit, toast])
 
-  const handleFileUpload = async (file: File, setter: (key: string) => void, field: string) => {
-    setUploadingDoc(field)
-    try {
-      const key = await uploadDocument(file)
-      setter(key)
-      toast.success('File uploaded.')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Upload failed')
-    } finally {
-      setUploadingDoc(null)
-    }
-  }
-
   const handleSubmit = async () => {
-    if (!firstName.trim()) {
-      toast.error('First name is required')
-      return
-    }
-    if (!lastName.trim()) {
-      toast.error('Last name is required')
-      return
-    }
-    if (!gender) {
-      toast.error('Gender is required')
-      return
-    }
-    if (!address.trim()) {
-      toast.error('Address is required')
-      return
-    }
-    if (!contactNo.trim()) {
-      toast.error('Contact number is required')
-      return
-    }
-    if (!age || Number(age) <= 0) {
-      toast.error('Valid age is required')
-      return
-    }
-    if (!dateOfBirth) {
-      toast.error('Date of birth is required')
-      return
-    }
-    if (!bloodType) {
-      toast.error('Blood type is required')
-      return
-    }
+    if (!firstName.trim()) return toast.error('First name is required')
+    if (!lastName.trim()) return toast.error('Last name is required')
+    if (!gender) return toast.error('Gender is required')
+    if (!address.trim()) return toast.error('Address is required')
+    if (!contactNo.trim()) return toast.error('Contact number is required')
+    if (!age || Number(age) <= 0) return toast.error('Valid age is required')
+    if (!dateOfBirth) return toast.error('Date of birth is required')
+    if (!bloodType) return toast.error('Blood type is required')
 
     setSubmitting(true)
     try {
+      // 1. Upload pending files concurrently
+      const [newNatIdKey, newHouseRegKey, newBirthCertKey] = await Promise.all([
+        nationalIdFile ? uploadDocument(nationalIdFile) : Promise.resolve(nationalIdFileKey),
+        houseRegFile ? uploadDocument(houseRegFile) : Promise.resolve(houseRegFileKey),
+        birthCertFile ? uploadDocument(birthCertFile) : Promise.resolve(birthCertFileKey),
+      ])
+
+      // 2. Build DTO with the resulting keys
       const dto = {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -171,13 +146,14 @@ export default function PersonForm() {
         dateOfBirth,
         bloodType: bloodType as 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | 'Unknown',
         nationalIdNumber: nationalIdNumber ? Number(nationalIdNumber) : undefined,
-        nationalIdFileKey: nationalIdFileKey || undefined,
+        nationalIdFileKey: newNatIdKey || undefined,
         houseRegistrationNumber: houseRegNumber ? Number(houseRegNumber) : undefined,
-        houseRegistrationFileKey: houseRegFileKey || undefined,
+        houseRegistrationFileKey: newHouseRegKey || undefined,
         birthCertificateNumber: birthCertNumber ? Number(birthCertNumber) : undefined,
-        birthCertificateFileKey: birthCertFileKey || undefined,
+        birthCertificateFileKey: newBirthCertKey || undefined,
       }
 
+      // 3. Save the record
       if (isEdit) {
         await updatePerson(Number(id), dto)
         toast.success('Person updated.')
@@ -330,30 +306,51 @@ export default function PersonForm() {
               birthCertificateFileKey: birthCertRef,
             }
             const fileRef = refs[fileKey]
+
             const numberVal =
               fileKey === 'nationalIdFileKey'
                 ? nationalIdNumber
                 : fileKey === 'houseRegistrationFileKey'
                   ? houseRegNumber
                   : birthCertNumber
+
             const setNumberVal =
               fileKey === 'nationalIdFileKey'
                 ? setNationalIdNumber
                 : fileKey === 'houseRegistrationFileKey'
                   ? setHouseRegNumber
                   : setBirthCertNumber
-            const fileVal =
+
+            // Track existing keys to know if an old file exists
+            const existingKeyVal =
               fileKey === 'nationalIdFileKey'
                 ? nationalIdFileKey
                 : fileKey === 'houseRegistrationFileKey'
                   ? houseRegFileKey
                   : birthCertFileKey
-            const setFileVal =
+
+            // Track newly selected pending files
+            const pendingFile =
               fileKey === 'nationalIdFileKey'
-                ? setNationalIdFileKey
+                ? nationalIdFile
                 : fileKey === 'houseRegistrationFileKey'
-                  ? setHouseRegFileKey
-                  : setBirthCertFileKey
+                  ? houseRegFile
+                  : birthCertFile
+
+            const setPendingFile =
+              fileKey === 'nationalIdFileKey'
+                ? setNationalIdFile
+                : fileKey === 'houseRegistrationFileKey'
+                  ? setHouseRegFile
+                  : setBirthCertFile
+
+            // Display pending file name if it exists, otherwise fall back to the existing DB key
+            const displayFileName = pendingFile
+              ? pendingFile.name
+              : existingKeyVal
+                ? existingKeyVal.split('/').pop()
+                : ''
+
             return (
               <div key={fileKey} className="form-page__grid" style={{ marginBottom: '16px' }}>
                 <FormGroup>
@@ -374,7 +371,7 @@ export default function PersonForm() {
                     style={{ display: 'none' }}
                     onChange={(e) => {
                       const file = e.target.files?.[0]
-                      if (file) handleFileUpload(file, setFileVal, fileKey)
+                      if (file) setPendingFile(file)
                     }}
                   />
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -382,12 +379,11 @@ export default function PersonForm() {
                       type="button"
                       variant="secondary"
                       size="sm"
-                      loading={uploadingDoc === fileKey}
                       onClick={() => fileRef.current?.click()}
                     >
-                      {fileVal ? 'Change File' : 'Upload File'}
+                      {displayFileName ? 'Change File' : 'Select File'}
                     </Button>
-                    {fileVal && (
+                    {displayFileName && (
                       <span
                         style={{
                           fontSize: '12px',
@@ -395,7 +391,7 @@ export default function PersonForm() {
                           wordBreak: 'break-all',
                         }}
                       >
-                        {fileVal.split('/').pop()}
+                        {displayFileName}
                       </span>
                     )}
                   </div>

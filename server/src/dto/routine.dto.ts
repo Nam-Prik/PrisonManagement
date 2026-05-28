@@ -18,6 +18,16 @@ export const CreateRoutineSchema = z.object({
   routinesScheduleDate: z.string(), // ISO Date string (YYYY-MM-DD)
   type: z.enum(ROUTINE_TYPES),
   officerIds: z.array(z.number().int()).default([]),
+
+  inspectionReason: z.string().optional(),
+  inspectionResults: z
+    .array(
+      z.object({
+        foundIrregularityId: z.number().int(),
+        resultDescription: z.string(),
+      })
+    )
+    .optional(),
 })
 
 export const UpdateRoutineSchema = CreateRoutineSchema.partial()

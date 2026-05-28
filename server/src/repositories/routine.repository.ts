@@ -2,6 +2,8 @@ import pool from '../db/pool.js'
 import type { CreateRoutineDto, UpdateRoutineDto } from '../dto/routine.dto.js'
 import type {
   RoutineDetailRow,
+  RoutineInspectionHeadRow,
+  RoutineInspectionLineRow,
   RoutineListRow,
   RoutineOfficerRow,
 } from '../models/routine.model.js'
@@ -33,9 +35,7 @@ export const routineRepository = {
     return result.rows
   },
 
-  async findById(
-    id: number
-  ): Promise<{ head: RoutineDetailRow; lines: RoutineOfficerRow[] } | null> {
+  async findById(id: number) {
     const headResult = await pool.query<RoutineDetailRow>(
       `SELECT id, routine_name, prison_location_id, routines_schedule_date, type::text FROM routinesschedule WHERE id = $1`,
       [id]
@@ -51,7 +51,28 @@ export const routineRepository = {
       [id]
     )
 
-    return { head: headResult.rows[0], lines: linesResult.rows }
+    let insHead: RoutineInspectionHeadRow | undefined
+    let insLines: RoutineInspectionLineRow[] | undefined
+
+    if (headResult.rows[0].type === 'Inspection') {
+      const insResult = await pool.query<RoutineInspectionHeadRow>(
+        `SELECT id, code, reason FROM inspection WHERE routine_id = $1`,
+        [id]
+      )
+      if (insResult.rows.length > 0) {
+        insHead = insResult.rows[0]
+        const lines = await pool.query<RoutineInspectionLineRow>(
+          `SELECT ir.found_irregularity_id, ir.result_description, irr.type::text AS irregularity_type, irr.severity::text AS severity
+           FROM inspectionresult ir 
+           JOIN irregularity irr ON ir.found_irregularity_id = irr.id
+           WHERE ir.inspection_id = $1`,
+          [insHead.id]
+        )
+        insLines = lines.rows
+      }
+    }
+
+    return { head: headResult.rows[0], lines: linesResult.rows, insHead, insLines }
   },
 
   async create(dto: CreateRoutineDto) {
@@ -73,6 +94,25 @@ export const routineRepository = {
           )
         }
       }
+
+      if (dto.type === 'Inspection') {
+        const insCode = `INSP-${newId}`
+        const insRes = await client.query<{ id: number }>(
+          `INSERT INTO inspection (code, reason, routine_id) VALUES ($1, $2, $3) RETURNING id`,
+          [insCode, dto.inspectionReason || 'Routine Check', newId]
+        )
+        const insId = insRes.rows[0].id
+
+        if (dto.inspectionResults && dto.inspectionResults.length > 0) {
+          for (const res of dto.inspectionResults) {
+            await client.query(
+              `INSERT INTO inspectionresult (inspection_id, found_irregularity_id, result_description) VALUES ($1, $2, $3)`,
+              [insId, res.foundIrregularityId, res.resultDescription]
+            )
+          }
+        }
+      }
+
       await client.query('COMMIT')
       return this.findById(newId)
     } catch (err) {
@@ -125,6 +165,45 @@ export const routineRepository = {
             [id, officerId]
           )
         }
+      }
+
+      if (dto.type === 'Inspection') {
+        const existingIns = await client.query<{ id: number }>(
+          `SELECT id FROM inspection WHERE routine_id = $1`,
+          [id]
+        )
+        let insId: number
+
+        if (existingIns.rows.length > 0) {
+          insId = existingIns.rows[0].id
+          await client.query(`UPDATE inspection SET reason = $1 WHERE id = $2`, [
+            dto.inspectionReason || 'Routine Check',
+            insId,
+          ])
+          await client.query(`DELETE FROM inspectionresult WHERE inspection_id = $1`, [insId])
+        } else {
+          const insCode = `INSP-${id}`
+          const insRes = await client.query<{ id: number }>(
+            `INSERT INTO inspection (code, reason, routine_id) VALUES ($1, $2, $3) RETURNING id`,
+            [insCode, dto.inspectionReason || 'Routine Check', id]
+          )
+          insId = insRes.rows[0].id
+        }
+
+        if (dto.inspectionResults && dto.inspectionResults.length > 0) {
+          for (const res of dto.inspectionResults) {
+            await client.query(
+              `INSERT INTO inspectionresult (inspection_id, found_irregularity_id, result_description) VALUES ($1, $2, $3)`,
+              [insId, res.foundIrregularityId, res.resultDescription]
+            )
+          }
+        }
+      } else if (dto.type !== undefined) {
+        await client.query(
+          `DELETE FROM inspectionresult WHERE inspection_id IN (SELECT id FROM inspection WHERE routine_id = $1)`,
+          [id]
+        )
+        await client.query(`DELETE FROM inspection WHERE routine_id = $1`, [id])
       }
 
       await client.query('COMMIT')
