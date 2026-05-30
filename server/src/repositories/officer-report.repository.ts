@@ -29,8 +29,8 @@ export const officerReportRepository = {
     return result.rows
   },
 
-  async listIrregularities(startDate: string, endDate: string) {
-    const query = `
+  async listIrregularities(startDate?: string, endDate?: string) {
+    let query = `
       SELECT 
           rs.routines_schedule_date AS "inspectionDate",
           pl.name AS "locationName",
@@ -43,16 +43,28 @@ export const officerReportRepository = {
       JOIN routinesschedule rs ON i.routine_id = rs.id
       JOIN prisonlocation pl ON rs.prison_location_id = pl.id
       JOIN irregularity irr ON ir.found_irregularity_id = irr.id
-      WHERE rs.routines_schedule_date >= $1 
-        AND rs.routines_schedule_date <= $2
-      ORDER BY rs.routines_schedule_date DESC, i.code ASC
+      WHERE 1=1
     `
-    const result = await pool.query(query, [startDate, endDate])
+    const values: unknown[] = []
+    let paramIndex = 1
+
+    if (startDate) {
+      query += ` AND rs.routines_schedule_date >= $${paramIndex++}`
+      values.push(startDate)
+    }
+    if (endDate) {
+      query += ` AND rs.routines_schedule_date <= $${paramIndex++}`
+      values.push(endDate)
+    }
+
+    query += ` ORDER BY rs.routines_schedule_date DESC, i.code ASC`
+
+    const result = await pool.query(query, values)
     return result.rows
   },
 
-  async getIrregularitiesSummary(startDate: string, endDate: string) {
-    const query = `
+  async getIrregularitiesSummary(startDate?: string, endDate?: string) {
+    let query = `
       SELECT 
           TO_CHAR(rs.routines_schedule_date, 'YYYY') AS "inspectionYear",
           TO_CHAR(rs.routines_schedule_date, 'FMMonth') AS "inspectionMonth",
@@ -62,8 +74,21 @@ export const officerReportRepository = {
       JOIN inspection i ON ir.inspection_id = i.id
       JOIN routinesschedule rs ON i.routine_id = rs.id
       JOIN irregularity irr ON ir.found_irregularity_id = irr.id
-      WHERE rs.routines_schedule_date >= $1 
-        AND rs.routines_schedule_date <= $2
+      WHERE 1=1
+    `
+    const values: unknown[] = []
+    let paramIndex = 1
+
+    if (startDate) {
+      query += ` AND rs.routines_schedule_date >= $${paramIndex++}`
+      values.push(startDate)
+    }
+    if (endDate) {
+      query += ` AND rs.routines_schedule_date <= $${paramIndex++}`
+      values.push(endDate)
+    }
+
+    query += `
       GROUP BY 
           "inspectionYear", 
           "inspectionMonth", 
@@ -74,7 +99,8 @@ export const officerReportRepository = {
           EXTRACT(MONTH FROM rs.routines_schedule_date) DESC, 
           "totalIncidents" DESC
     `
-    const result = await pool.query(query, [startDate, endDate])
+
+    const result = await pool.query(query, values)
     return result.rows
   },
 }
