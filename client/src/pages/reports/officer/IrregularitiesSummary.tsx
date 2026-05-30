@@ -34,20 +34,18 @@ export default function IrregularitiesSummary() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!startDate || !endDate) {
-      setDateError('Both start and end dates are required')
-      return
-    }
-    if (startDate > endDate) {
+
+    if (startDate && endDate && startDate > endDate) {
       setDateError('"Start Date" must be on or before "End Date"')
       return
     }
+
     setDateError(undefined)
     setLoading(true)
     setError(null)
     setSearched(true)
     try {
-      const data = await getIrregularitiesSummary(startDate, endDate)
+      const data = await getIrregularitiesSummary(startDate || undefined, endDate || undefined)
       setRows(data.map((item, i) => ({ ...item, _idx: i })))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -56,7 +54,6 @@ export default function IrregularitiesSummary() {
     }
   }
 
-  // Calculate total incidents across all rows for the Stat Grid
   const totalIncidentsOverall = rows.reduce((sum, r) => sum + r.totalIncidents, 0)
 
   return (
@@ -71,7 +68,7 @@ export default function IrregularitiesSummary() {
       <Card title="Filter">
         <form onSubmit={handleSubmit} className="report-filter">
           <div className="report-filter__input">
-            <FormGroup label="Start Date" htmlFor="startDate" required error={dateError}>
+            <FormGroup label="Start Date" htmlFor="startDate" error={dateError}>
               <Input
                 id="startDate"
                 type="date"
@@ -80,7 +77,7 @@ export default function IrregularitiesSummary() {
                 error={!!dateError}
               />
             </FormGroup>
-            <FormGroup label="End Date" htmlFor="endDate" required>
+            <FormGroup label="End Date" htmlFor="endDate">
               <Input
                 id="endDate"
                 type="date"

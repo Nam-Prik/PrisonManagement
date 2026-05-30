@@ -7,12 +7,16 @@ import type { ApiResponse } from '../types/response'
 import http from './http'
 
 export const listIrregularities = async (
-  startDate: string,
-  endDate: string
+  startDate?: string,
+  endDate?: string
 ): Promise<IrregularityListItem[]> => {
+  const params: Record<string, string> = {}
+  if (startDate) params.startDate = startDate
+  if (endDate) params.endDate = endDate
+
   const { data } = await http.get<ApiResponse<IrregularityListItem[]>>(
     '/officer-reports/irregularities',
-    { params: { startDate, endDate } }
+    { params }
   )
   return data.data
 }
@@ -26,12 +30,16 @@ export const getOfficerRoutines = async (officerCode?: string): Promise<OfficerR
 }
 
 export const getIrregularitiesSummary = async (
-  startDate: string,
-  endDate: string
+  startDate?: string,
+  endDate?: string
 ): Promise<IrregularitySummaryItem[]> => {
+  const params: Record<string, string> = {}
+  if (startDate) params.startDate = startDate
+  if (endDate) params.endDate = endDate
+
   const { data } = await http.get<ApiResponse<IrregularitySummaryItem[]>>(
     '/officer-reports/irregularities/summary',
-    { params: { startDate, endDate } }
+    { params }
   )
   return data.data
 }

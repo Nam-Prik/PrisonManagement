@@ -66,7 +66,7 @@ export default function OfficerRoutines() {
             <FormGroup label="Officer Code" htmlFor="officerCode">
               <Input
                 id="officerCode"
-                placeholder="e.g. 5015 (optional)"
+                placeholder="e.g. 20 (optional)"
                 value={officerCode}
                 onChange={(e) => setOfficerCode(e.target.value)}
               />

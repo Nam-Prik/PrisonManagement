@@ -11,31 +11,21 @@ export const officerReportController = {
   async listIrregularities(c: Context) {
     const startDate = c.req.query('startDate')
     const endDate = c.req.query('endDate')
-
-    if (!startDate || !endDate) {
-      return c.json<ErrorResponse>(
-        {
-          error: 'Bad Request',
-          message: 'Query params "startDate" and "endDate" are required (YYYY-MM-DD)',
-          statusCode: 400,
-        },
-        400
-      )
-    }
-
     const datePattern = /^\d{4}-\d{2}-\d{2}$/
-    if (!datePattern.test(startDate) || !datePattern.test(endDate)) {
+
+    if (startDate && !datePattern.test(startDate)) {
       return c.json<ErrorResponse>(
-        {
-          error: 'Bad Request',
-          message: 'Dates must be in YYYY-MM-DD format',
-          statusCode: 400,
-        },
+        { error: 'Bad Request', message: 'startDate must be YYYY-MM-DD', statusCode: 400 },
         400
       )
     }
-
-    if (startDate > endDate) {
+    if (endDate && !datePattern.test(endDate)) {
+      return c.json<ErrorResponse>(
+        { error: 'Bad Request', message: 'endDate must be YYYY-MM-DD', statusCode: 400 },
+        400
+      )
+    }
+    if (startDate && endDate && startDate > endDate) {
       return c.json<ErrorResponse>(
         {
           error: 'Bad Request',
@@ -56,7 +46,6 @@ export const officerReportController = {
 
   async getOfficerRoutines(c: Context) {
     const officerCode = c.req.query('officerCode') || '*'
-
     const data = await officerReportService.getOfficerRoutines(officerCode)
 
     return c.json<ApiResponse<OfficerRoutineItem[]>>({
@@ -68,31 +57,21 @@ export const officerReportController = {
   async getIrregularitiesSummary(c: Context) {
     const startDate = c.req.query('startDate')
     const endDate = c.req.query('endDate')
-
-    if (!startDate || !endDate) {
-      return c.json<ErrorResponse>(
-        {
-          error: 'Bad Request',
-          message: 'Query params "startDate" and "endDate" are required (YYYY-MM-DD)',
-          statusCode: 400,
-        },
-        400
-      )
-    }
-
     const datePattern = /^\d{4}-\d{2}-\d{2}$/
-    if (!datePattern.test(startDate) || !datePattern.test(endDate)) {
+
+    if (startDate && !datePattern.test(startDate)) {
       return c.json<ErrorResponse>(
-        {
-          error: 'Bad Request',
-          message: 'Dates must be in YYYY-MM-DD format',
-          statusCode: 400,
-        },
+        { error: 'Bad Request', message: 'startDate must be YYYY-MM-DD', statusCode: 400 },
         400
       )
     }
-
-    if (startDate > endDate) {
+    if (endDate && !datePattern.test(endDate)) {
+      return c.json<ErrorResponse>(
+        { error: 'Bad Request', message: 'endDate must be YYYY-MM-DD', statusCode: 400 },
+        400
+      )
+    }
+    if (startDate && endDate && startDate > endDate) {
       return c.json<ErrorResponse>(
         {
           error: 'Bad Request',
