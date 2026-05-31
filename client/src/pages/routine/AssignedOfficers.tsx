@@ -5,15 +5,19 @@ import { Button, LovButton } from '../../components/ui'
 import type { OfficerOption } from '../../types/dto/officer.dto'
 import type { RoutineOfficer } from '../../types/dto/routine.dto'
 
-// Define a flexible type that Biome accepts for the dropdown
 type ExtendedOfficerOption = OfficerOption & {
   person?: { firstName: string; lastName: string }
   name?: string
+  officerName?: string
 }
 
 const OFFICER_LOV_COLUMNS: LovColumn<ExtendedOfficerOption>[] = [
-  { key: 'id', label: 'ID', width: '60px' },
-  { key: 'code', label: 'Code', width: '100px' },
+  { key: 'code', label: 'Code', width: '80px' },
+  {
+    key: 'firstName',
+    label: 'Name',
+    render: (_, officer) => `${officer.firstName} ${officer.lastName}`,
+  },
   { key: 'rank', label: 'Rank' },
 ]
 
@@ -30,7 +34,10 @@ export default function AssignedOfficers({ items, allOfficers, onAdd, onRemove }
   const handleSelect = (officer: ExtendedOfficerOption) => {
     const name = officer.person
       ? `${officer.person.firstName} ${officer.person.lastName}`
-      : officer.name || 'Unknown Officer'
+      : officer.officerName ||
+        officer.name ||
+        `${officer.firstName} ${officer.lastName}`.trim() ||
+        'Unknown Officer'
 
     onAdd({
       officerId: officer.id,
